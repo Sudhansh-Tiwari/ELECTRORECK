@@ -8,9 +8,11 @@
   <meta name="keywords" content="Electroreck, NIT Kurukshetra, Techspardha 2026, Electrical Engineering Society, Electrica, Advanza, Digispark, Vidhwaan">
   <meta property="og:title" content="Electroreck — Electrical Engineering Society, NIT KKR">
   <meta property="og:description" content="Official electrical engineering society of NIT Kurukshetra. Innovating, designing, and igniting the spark.">
-  <meta property="og:type" content="website">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300d4ff'><path d='M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z'/></svg>">
+  <link rel="icon" type="image/png" href="assets/logo.png">
   <link rel="stylesheet" href="styles.css">
+  <!-- Supabase JS & Backend Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
 </head>
 <body>
 
@@ -19,9 +21,7 @@
     <div class="container nav-container">
       <a href="#" class="brand-link">
         <div class="brand-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z"></path>
-          </svg>
+          <img src="assets/logo.png" alt="Electroreck Logo">
         </div>
         <span class="text-foreground">Electroreck</span>
       </a>
@@ -35,6 +35,7 @@
         <a href="#gallery" class="nav-link">Gallery</a>
         <a href="#team" class="nav-link">Team</a>
         <a href="#contact" class="nav-link">Contact</a>
+        <a href="my-registrations.html" class="nav-link" id="navMyRegsLink" style="display: none;">My Passes</a>
       </div>
 
       <!-- Actions: Theme Toggle & Join Society -->
@@ -56,9 +57,12 @@
           </svg>
         </button>
 
-        <button class="btn btn-primary glow-primary-sm" id="navJoinBtn" onclick="openInductionModal()">
-          Join Society
-        </button>
+        <div id="navAuthSlot" style="display: flex; gap: 0.5rem; align-items: center;">
+          <a href="login.html" class="btn btn-outline" id="navLoginBtn" style="text-decoration: none;">Sign In</a>
+          <button class="btn btn-primary glow-primary-sm" id="navJoinBtn" onclick="openInductionModal()">
+            Join Society
+          </button>
+        </div>
 
         <!-- Mobile Menu Hamburger Button -->
         <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open mobile navigation">
@@ -81,6 +85,9 @@
     <a href="#gallery" class="nav-link" onclick="closeMobileMenu()">Gallery</a>
     <a href="#team" class="nav-link" onclick="closeMobileMenu()">Team</a>
     <a href="#contact" class="nav-link" onclick="closeMobileMenu()">Contact</a>
+    <a href="my-registrations.html" class="nav-link" id="mobileMyRegsLink" style="display: none;" onclick="closeMobileMenu()">My Registrations</a>
+    <a href="login.html" class="nav-link" id="mobileLoginLink" onclick="closeMobileMenu()">Sign In / Account</a>
+    <a href="admin.html" class="nav-link" id="mobileAdminLink" style="display: none; color: #fbbf24;" onclick="closeMobileMenu()">👑 Admin Portal</a>
     <div style="padding-top: 0.75rem; border-top: 1px solid var(--border-color); margin-top: 0.5rem;">
       <button class="btn btn-primary" style="width: 100%;" onclick="openInductionModal(); closeMobileMenu();">
         Join Society
@@ -228,7 +235,7 @@
       </div>
 
       <!-- Events Grid -->
-      <div class="events-grid">
+      <div class="events-grid" id="eventsGrid">
 
         <!-- EVENT 1: ELECTRICA -->
         <article class="event-card event-electrica" data-category="cultural" id="card-electrica">
@@ -940,9 +947,7 @@
         <div>
           <a href="#" class="brand-link" style="margin-bottom: 1rem;">
             <div class="brand-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z"></path>
-              </svg>
+              <img src="assets/logo.png" alt="Electroreck Logo">
             </div>
             <span>Electroreck</span>
           </a>

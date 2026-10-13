@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Society Induction 2026 — Electroreck | NIT Kurukshetra</title>
+  <meta name="description" content="Apply for Electroreck Society Induction 2026 at NIT Kurukshetra. Join core technical, embedded, web, and management wings.">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <style>
+    .ind-page-container {
+      max-width: 780px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .ind-card {
+      background: var(--card-bg, #0b1120);
+      border: 1px solid var(--border-color, rgba(0, 212, 255, 0.2));
+      border-radius: 16px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+    }
+
+    .ind-header {
+      padding: 2.25rem 2rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(0, 212, 255, 0.08) 0%, transparent 100%);
+    }
+
+    .ind-body {
+      padding: 2rem;
+    }
+
+    .form-field-error {
+      color: #ef4444;
+      font-size: 0.775rem;
+      margin-top: 0.35rem;
+      display: none;
+      font-weight: 500;
+    }
+
+    .form-field-error.visible {
+      display: block;
+    }
+
+    .char-count {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: right;
+      margin-top: 0.25rem;
+    }
+
+    .success-receipt {
+      display: none;
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+
+    .status-badge-lg {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 1rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar" style="position: relative;">
+    <div class="container nav-container">
+      <a href="index.html" class="brand-link">
+        <div class="brand-icon">
+          <img src="assets/logo.png" alt="Electroreck Logo">
+        </div>
+        <span class="text-foreground">Electroreck</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="index.html#events" class="nav-link">Events</a>
+        <a href="register.html" class="nav-link">Register for Event</a>
+        <a href="my-registrations.html" class="nav-link">My Registrations</a>
+      </div>
+
+      <div class="nav-actions">
+        <span id="userNavEmail" style="font-size: 0.85rem; color: var(--text-muted); display: none;"></span>
+        <button class="btn btn-outline" id="authNavBtn" onclick="handleAuthNav()">Sign In</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="ind-page-container">
+    <div class="ind-card">
+
+      <!-- ==================== APPLICATION FORM ==================== -->
+      <div id="formContainer">
+        <div class="ind-header">
+          <span class="event-cat-badge bg-primary-10" style="color: var(--primary);">Recruitment Drive 2026</span>
+          <h1 style="font-size: 1.75rem; font-weight: 800; margin: 0.5rem 0 0.25rem; color: #fff;">
+            Society Induction Application
+          </h1>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">
+            Department of Electrical Engineering, National Institute of Technology, Kurukshetra.
+          </p>
+        </div>
+
+        <div class="ind-body">
+          <div id="globalAlert" class="alert-box alert-danger" style="display: none; margin-bottom: 1.25rem;">
+            <span id="globalAlertMsg"></span>
+          </div>
+
+          <form id="inductionForm" onsubmit="handleInductionSubmit(event)">
+            
+            <!-- Student Details -->
+            <div class="form-row form-group">
+              <div>
+                <label class="form-label" for="indFullName">Full Name</label>
+                <input class="form-input" type="text" id="indFullName" required placeholder="Full Name">
+                <div class="form-field-error" id="indFullNameError"></div>
+              </div>
+              <div>
+                <label class="form-label" for="indEmail">College Email (Read-Only)</label>
+                <input class="form-input" type="email" id="indEmail" readonly style="opacity: 0.8; cursor: not-allowed; background: rgba(255,255,255,0.03);">
+                <div class="form-field-error" id="indEmailError"></div>
+              </div>
+            </div>
+
+            <div class="form-row form-group">
+              <div>
+                <label class="form-label" for="indRollNo">NIT KKR Roll Number (9 Digits)</label>
+                <input class="form-input" type="text" id="indRollNo" placeholder="e.g. 123100045" maxlength="9" required>
+                <div class="form-field-error" id="indRollNoError"></div>
+              </div>
+              <div>
+                <label class="form-label" for="indPhone">Contact Phone (10 Digits)</label>
+                <input class="form-input" type="tel" id="indPhone" placeholder="e.g. 9876543210" maxlength="10" required>
+                <div class="form-field-error" id="indPhoneError"></div>
+              </div>
+            </div>
+
+            <div class="form-row form-group">
+              <div>
+                <label class="form-label" for="indDept">Department</label>
+                <select class="form-input" id="indDept" required>
+                  <option value="">Select Department</option>
+                  <option value="Electrical Engineering">Electrical Engineering</option>
+                  <option value="Electronics & Communication">Electronics & Communication Engineering</option>
+                  <option value="Computer Engineering">Computer Engineering</option>
+                  <option value="Information Technology">Information Technology</option>
+                  <option value="Mechanical Engineering">Mechanical Engineering</option>
+                  <option value="Civil Engineering">Civil Engineering</option>
+                  <option value="Production & Industrial">Production & Industrial Engineering</option>
+                  <option value="Other Department">Other Department</option>
+                </select>
+                <div class="form-field-error" id="indDeptError"></div>
+              </div>
+              <div>
+                <label class="form-label" for="indYear">Year of Study</label>
+                <select class="form-input" id="indYear" required>
+                  <option value="">Select Year</option>
+                  <option value="1st Year (B.Tech)">1st Year (B.Tech)</option>
+                  <option value="2nd Year (B.Tech)">2nd Year (B.Tech)</option>
+                  <option value="3rd Year (B.Tech)">3rd Year (B.Tech)</option>
+                  <option value="Postgraduate (M.Tech/PhD)">Postgraduate (M.Tech/PhD)</option>
+                </select>
+                <div class="form-field-error" id="indYearError"></div>
+              </div>
+            </div>
+
+            <!-- Society Wing Selector -->
+            <div class="form-group">
+              <label class="form-label" for="indWingSelector">Preferred Society Wing</label>
+              <select class="form-input" id="indWingSelector" required>
+                <option value="">Loading society wings...</option>
+              </select>
+              <span id="wingDescriptionHelper" style="font-size: 0.775rem; color: var(--text-muted); display: block; margin-top: 0.35rem;"></span>
+              <div class="form-field-error" id="indWingSelectorError"></div>
+            </div>
+
+            <!-- Reason for Joining -->
+            <div class="form-group">
+              <label class="form-label" for="indReason">
+                Reason for Joining Electroreck (10 to 500 characters)
+              </label>
+              <textarea class="form-input" id="indReason" rows="4" maxlength="500" placeholder="Describe your technical interests, past projects, or how you want to contribute to the society..." required oninput="updateCharCount(this)"></textarea>
+              <div class="char-count">
+                <span id="charCountDisplay">0</span> / 500 characters (min 10)
+              </div>
+              <div class="form-field-error" id="indReasonError"></div>
+            </div>
+
+            <!-- Consent & Privacy Note -->
+            <div style="margin: 1.75rem 0 1.5rem; padding: 1rem; background: rgba(0, 212, 255, 0.04); border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 8px;">
+              <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer; font-size: 0.85rem; color: var(--text-main);">
+                <input type="checkbox" id="indConsent" required style="margin-top: 0.2rem;">
+                <span>
+                  I certify that the information given above is accurate and I am committed to dedicating time to Electroreck society initiatives.
+                </span>
+              </label>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; padding-left: 1.6rem;">
+                🔒 <em>Privacy Note: Induction candidate information is kept confidential and reviewed solely by the Society Faculty In-Charge and Core Executive Committee during interviews.</em>
+              </div>
+              <div class="form-field-error" id="indConsentError"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="indSubmitBtn" style="width: 100%; padding: 0.9rem; font-size: 1rem;">
+              Submit Induction Application
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ==================== SUCCESS RECEIPT VIEW ==================== -->
+      <div id="receiptContainer" class="success-receipt">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; display: inline-flex; align-items: center; justify-content: center; color: #10b981; margin-bottom: 1rem;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;">
+          Application Submitted Successfully!
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.875rem;">
+          Thank you, <strong id="receiptCandidateName" style="color: #fff;"></strong>. Your induction form has been received.
+        </p>
+
+        <div class="status-badge-lg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          Status: Pending Core Review
+        </div>
+
+        <div style="max-width: 480px; margin: 1rem auto 2rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; text-align: left; font-size: 0.875rem;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: var(--text-muted);">Roll Number:</span>
+            <span style="font-weight: 600; color: #fff;" id="receiptRollNo">—</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span style="color: var(--text-muted);">Preferred Wing:</span>
+            <span style="font-weight: 600; color: var(--primary);" id="receiptWing">—</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-muted);">Confirmation Sent To:</span>
+            <span style="font-weight: 600; color: #fff;" id="receiptEmail">—</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <a href="my-registrations.html" class="btn btn-primary" style="text-decoration: none;">
+            View in My Registrations
+          </a>
+          <a href="index.html" class="btn btn-outline" style="text-decoration: none;">
+            Return to Home
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let currentUserProfile = null;
+    let availableWings = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Check Authentication
+      currentUserProfile = await Electroreck.auth.getCurrentProfile();
+      if (!currentUserProfile) {
+        window.location.replace('login.html?redirect=induction.html');
+        return;
+      }
+
+      // Update Nav
+      const userEmailEl = document.getElementById('userNavEmail');
+      const authBtn = document.getElementById('authNavBtn');
+      userEmailEl.textContent = currentUserProfile.email;
+      userEmailEl.style.display = 'inline-block';
+      authBtn.textContent = 'Sign Out';
+      authBtn.onclick = async () => {
+        await Electroreck.auth.signOut();
+        window.location.replace('login.html');
+      };
+
+      // Pre-fill user details
+      document.getElementById('indFullName').value = currentUserProfile.full_name || '';
+      document.getElementById('indEmail').value = currentUserProfile.email || '';
+
+      // 2. Check if already applied
+      const existingApp = await Electroreck.induction.getMyApplication();
+      if (existingApp) {
+        renderReceipt(existingApp);
+        return;
+      }
+
+      // 3. Load Wings from Database
+      await loadWings();
+    });
+
+    function handleAuthNav() {
+      if (currentUserProfile) {
+        Electroreck.auth.signOut().then(() => window.location.replace('login.html'));
+      } else {
+        window.location.href = 'login.html';
+      }
+    }
+
+    async function loadWings() {
+      try {
+        availableWings = await Electroreck.wings.getAll();
+        const selector = document.getElementById('indWingSelector');
+        selector.innerHTML = '<option value="">-- Select Your Preferred Wing --</option>';
+
+        availableWings.forEach(w => {
+          const opt = document.createElement('option');
+          opt.value = w.id;
+          opt.textContent = w.name;
+          selector.appendChild(opt);
+        });
+
+        selector.addEventListener('change', () => {
+          const selected = availableWings.find(w => w.id === selector.value);
+          document.getElementById('wingDescriptionHelper').textContent = selected ? selected.description : '';
+        });
+      } catch (err) {
+        console.error('Failed to load society wings:', err);
+      }
+    }
+
+    function updateCharCount(textarea) {
+      const len = textarea.value.trim().length;
+      document.getElementById('charCountDisplay').textContent = len;
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('.form-field-error').forEach(el => {
+        el.textContent = '';
+        el.classList.remove('visible');
+      });
+      document.getElementById('globalAlert').style.display = 'none';
+    }
+
+    function showFieldError(fieldId, errorMsg) {
+      const errEl = document.getElementById(fieldId + 'Error');
+      if (errEl) {
+        errEl.textContent = errorMsg;
+        errEl.classList.add('visible');
+      }
+    }
+
+    function showGlobalError(msg) {
+      const alertBox = document.getElementById('globalAlert');
+      const msgBox = document.getElementById('globalAlertMsg');
+      msgBox.textContent = msg;
+      alertBox.style.display = 'flex';
+      alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    async function handleInductionSubmit(e) {
+      e.preventDefault();
+      clearErrors();
+
+      const fullName = document.getElementById('indFullName').value.trim();
+      const rollNumber = document.getElementById('indRollNo').value.trim();
+      const phone = document.getElementById('indPhone').value.trim();
+      const department = document.getElementById('indDept').value;
+      const yearOfStudy = document.getElementById('indYear').value;
+      const preferredWingId = document.getElementById('indWingSelector').value;
+      const reason = document.getElementById('indReason').value.trim();
+      const consentGiven = document.getElementById('indConsent').checked;
+
+      let hasError = false;
+
+      if (!fullName) {
+        showFieldError('indFullName', 'Full Name is required.');
+        hasError = true;
+      }
+      if (!/^[0-9]{9}$/.test(rollNumber)) {
+        showFieldError('indRollNo', 'Roll number must be exactly 9 digits.');
+        hasError = true;
+      }
+      if (!/^[0-9]{10}$/.test(phone)) {
+        showFieldError('indPhone', 'Phone number must be exactly 10 digits.');
+        hasError = true;
+      }
+      if (!department) {
+        showFieldError('indDept', 'Please select your department.');
+        hasError = true;
+      }
+      if (!yearOfStudy) {
+        showFieldError('indYear', 'Please select your year of study.');
+        hasError = true;
+      }
+      if (!preferredWingId) {
+        showFieldError('indWingSelector', 'Please select a preferred wing.');
+        hasError = true;
+      }
+      if (reason.length < 10 || reason.length > 500) {
+        showFieldError('indReason', 'Reason must be between 10 and 500 characters.');
+        hasError = true;
+      }
+      if (!consentGiven) {
+        showFieldError('indConsent', 'Consent agreement is required.');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      const submitBtn = document.getElementById('indSubmitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting application...';
+
+      try {
+        const app = await Electroreck.induction.apply({
+          full_name: fullName,
+          roll_number: rollNumber,
+          department,
+          year_of_study: yearOfStudy,
+          phone,
+          preferred_wing_id: preferredWingId,
+          reason_for_joining: reason,
+          consent_given: true
+        });
+
+        // Send confirmation email
+        await Electroreck.email.sendInductionConfirmation(app);
+
+        // Display Receipt
+        renderReceipt(app);
+
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Induction Application';
+        const errText = err.message || 'Application submission failed.';
+        if (errText.includes('Roll Number') || errText.includes('roll_number')) {
+          showFieldError('indRollNo', errText);
+        } else if (errText.includes('already submitted')) {
+          showGlobalError(errText);
+        } else {
+          showGlobalError(errText);
+        }
+      }
+    }
+
+    function renderReceipt(app) {
+      document.getElementById('formContainer').style.display = 'none';
+      const receipt = document.getElementById('receiptContainer');
+      receipt.style.display = 'block';
+
+      document.getElementById('receiptCandidateName').textContent = app.full_name;
+      document.getElementById('receiptRollNo').textContent = app.roll_number;
+      document.getElementById('receiptWing').textContent = app.wing ? app.wing.name : 'Selected Wing';
+      document.getElementById('receiptEmail').textContent = app.email;
+    }
+  </script>
+</body>
+</html>

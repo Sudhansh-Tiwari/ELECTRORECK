@@ -62,6 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initStatsCounter();
   initCountdownTimer();
   handleUrlRouting();
+  initNavbarAuth();
+  loadDatabaseEvents();
 });
 
 // --- Navbar Scroll & Active State ---
@@ -384,7 +386,7 @@ function openEventDetails(eventId, defaultTab = 'overview') {
 }
 
 function openEventRegister(eventId) {
-  openEventDetails(eventId, 'register');
+  window.location.href = `register.html?event=${eventId}`;
 }
 
 function closeEventModal() {
@@ -421,13 +423,14 @@ function handleEventRegisterSubmit(e) {
   showToast(`🎉 Registration submitted successfully for "${teamName}" in ${eventName}!`, 'success');
 }
 
-// --- Society Induction Modal ---
+// --- Society Induction Navigation ---
 function openInductionModal() {
-  document.getElementById('inductionModal').classList.add('open');
+  window.location.href = 'induction.html';
 }
 
 function closeInductionModal() {
-  document.getElementById('inductionModal').classList.remove('open');
+  const modal = document.getElementById('inductionModal');
+  if (modal) modal.classList.remove('open');
 }
 
 function handleInductionSubmit(e) {
@@ -511,3 +514,181 @@ function showToast(message, type = 'default') {
     }, 400);
   }, 4000);
 }
+
+// =========================================================================
+// BACKEND INTEGRATION: NAVBAR AUTH STATE & DATABASE EVENTS LOADING
+// =========================================================================
+
+async function initNavbarAuth() {
+  if (!window.Electroreck) return;
+  try {
+    const profile = await Electroreck.auth.getCurrentProfile();
+    const navAuthSlot = document.getElementById('navAuthSlot');
+    const myRegsLink = document.getElementById('navMyRegsLink');
+    const mobileMyRegs = document.getElementById('mobileMyRegsLink');
+    const mobileAdmin = document.getElementById('mobileAdminLink');
+
+    if (profile) {
+      if (myRegsLink) myRegsLink.style.display = 'inline-block';
+      if (mobileMyRegs) mobileMyRegs.style.display = 'block';
+
+      if (profile.role === 'admin' || profile.role === 'coordinator') {
+        if (mobileAdmin) mobileAdmin.style.display = 'block';
+      }
+
+      if (navAuthSlot) {
+        let adminBtnHtml = '';
+        if (profile.role === 'admin' || profile.role === 'coordinator') {
+          adminBtnHtml = `<a href="admin.html" class="btn btn-outline" style="border-color: #fbbf24; color: #fbbf24; text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.8rem;">👑 Admin</a>`;
+        }
+
+        navAuthSlot.innerHTML = `
+          ${adminBtnHtml}
+          <a href="my-registrations.html" class="btn btn-outline" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.8rem;">My Passes</a>
+          <button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="handleNavbarSignOut()">Sign Out</button>
+        `;
+      }
+    } else {
+      if (myRegsLink) myRegsLink.style.display = 'none';
+      if (mobileMyRegs) mobileMyRegs.style.display = 'none';
+      if (mobileAdmin) mobileAdmin.style.display = 'none';
+      if (navAuthSlot) {
+        navAuthSlot.innerHTML = `
+          <a href="login.html" class="btn btn-outline" style="text-decoration: none;">Sign In</a>
+          <button class="btn btn-primary glow-primary-sm" onclick="openInductionModal()">Join Society</button>
+        `;
+      }
+    }
+  } catch (e) {
+    console.error('Navbar auth error:', e);
+  }
+}
+
+async function handleNavbarSignOut() {
+  if (window.Electroreck) {
+    await Electroreck.auth.signOut();
+    window.location.reload();
+  }
+}
+
+async function loadDatabaseEvents() {
+  const container = document.getElementById('eventsGrid');
+  if (!container || !window.Electroreck) return;
+
+  try {
+    const dbEvents = await Electroreck.events.getAll();
+    if (!dbEvents || dbEvents.length === 0) return;
+
+    const eventCardsHtml = dbEvents.map(ev => {
+      const slug = ev.slug.toLowerCase();
+      const colorVar = `var(--${slug}, var(--primary))`;
+      const catLower = ev.category.toLowerCase();
+      const pct = Math.min(100, Math.round((ev.seats_filled / ev.max_seats) * 100));
+
+      const teamText = ev.max_team_size > 1
+        ? `${ev.min_team_size}–${ev.max_team_size} members`
+        : 'Solo participant';
+
+      const deadlineStr = new Date(ev.registration_deadline).toLocaleDateString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric'
+      });
+
+      let statusBadgeHtml = '';
+      let registerBtnHtml = '';
+
+      if (ev.computed_status === 'Open') {
+        statusBadgeHtml = `
+          <span class="badge-status badge-open">
+            <span class="pulse-dot" style="background-color: #10b981;"></span>
+            Registration Open
+          </span>
+        `;
+        registerBtnHtml = `
+          <a href="register.html?event=${ev.slug}" class="btn" style="background-color: ${colorVar}; color: #060913; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+            Register
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          </a>
+        `;
+      } else if (ev.computed_status === 'Full') {
+        statusBadgeHtml = `
+          <span class="badge-status badge-full">
+            ● Event Full
+          </span>
+        `;
+        registerBtnHtml = `
+          <button class="btn" disabled style="opacity: 0.5; cursor: not-allowed; background: rgba(255,255,255,0.1); color: var(--text-muted);">
+            Seats Full
+          </button>
+        `;
+      } else {
+        statusBadgeHtml = `
+          <span class="badge-status badge-closed">
+            ● Registration Closed
+          </span>
+        `;
+        registerBtnHtml = `
+          <button class="btn" disabled style="opacity: 0.5; cursor: not-allowed; background: rgba(255,255,255,0.1); color: var(--text-muted);">
+            Closed
+          </button>
+        `;
+      }
+
+      return `
+        <article class="event-card event-${slug}" data-category="${catLower}" id="card-${slug}">
+          <div class="event-card-stripe bg-${slug}"></div>
+          <div class="event-card-body">
+            <div class="event-header">
+              <div>
+                <span class="event-cat-badge bg-${slug}-10 text-${slug}">${ev.category}</span>
+                <h3 class="event-title text-${slug}">${ev.title}</h3>
+                <p class="event-tagline">${ev.tagline || ''}</p>
+              </div>
+              ${statusBadgeHtml}
+            </div>
+
+            <p class="event-desc">
+              ${ev.description}
+            </p>
+
+            <div class="event-meta-list">
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>${ev.venue}</span>
+              </div>
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+                <span>Deadline: ${deadlineStr}</span>
+              </div>
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>Team: ${teamText}</span>
+              </div>
+              <div class="event-meta-item" style="justify-content: space-between;">
+                <span style="color: ${colorVar}; font-weight: 600;">${ev.seats_filled} / ${ev.max_seats}</span>
+                <span>Seats filled (${pct}%)</span>
+              </div>
+            </div>
+
+            <div class="event-progress-wrap">
+              <div class="event-progress-bar">
+                <div class="event-progress-fill" style="width: ${pct}%; background-color: ${colorVar};"></div>
+              </div>
+            </div>
+
+            <div class="event-actions">
+              <button class="btn btn-outline" style="border-color: ${colorVar}; color: ${colorVar};" onclick="openEventDetails('${slug}')">
+                View Details
+              </button>
+              ${registerBtnHtml}
+            </div>
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    container.innerHTML = eventCardsHtml;
+  } catch (err) {
+    console.warn('Could not load events from database:', err);
+  }
+}
+

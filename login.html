@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Portal — Electroreck Society | NIT Kurukshetra</title>
+  <meta name="description" content="Sign in or create your student account for Electroreck NIT Kurukshetra Techspardha events and society induction.">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Supabase JS CDN (v2) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <style>
+    .auth-page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1rem;
+      position: relative;
+      background: radial-gradient(circle at 50% 20%, rgba(0, 212, 255, 0.08) 0%, rgba(6, 9, 19, 0.98) 75%);
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card-bg, #0b1120);
+      border: 1px solid var(--border-color, rgba(0, 212, 255, 0.2));
+      border-radius: 16px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 212, 255, 0.1);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .auth-header {
+      padding: 2rem 2rem 1.25rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .auth-tab-btn {
+      flex: 1;
+      padding: 0.875rem 1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.925rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .auth-tab-btn.active {
+      color: var(--primary, #00d4ff);
+      background: rgba(0, 212, 255, 0.06);
+    }
+
+    .auth-tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary, #00d4ff);
+      box-shadow: 0 0 10px var(--primary, #00d4ff);
+    }
+
+    .auth-body {
+      padding: 2rem;
+    }
+
+    .form-field-error {
+      color: #ef4444;
+      font-size: 0.775rem;
+      margin-top: 0.35rem;
+      display: none;
+      font-weight: 500;
+    }
+
+    .form-field-error.visible {
+      display: block;
+    }
+
+    .alert-box {
+      padding: 0.875rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1.25rem;
+      display: none;
+      align-items: flex-start;
+      gap: 0.75rem;
+      line-height: 1.45;
+    }
+
+    .alert-box.visible {
+      display: flex;
+    }
+
+    .alert-danger {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #6ee7b7;
+    }
+
+    .alert-info {
+      background: rgba(0, 212, 255, 0.12);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      color: #7dd3fc;
+    }
+
+    .demo-bar {
+      margin-top: 1.5rem;
+      padding: 0.75rem 1rem;
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px dashed rgba(245, 158, 11, 0.35);
+      border-radius: 10px;
+      font-size: 0.8rem;
+      color: #fcd34d;
+      text-align: center;
+      max-width: 480px;
+      width: 100%;
+    }
+
+    .demo-bar-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .demo-chip {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .demo-chip:hover {
+      background: var(--primary, #00d4ff);
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-page-wrapper">
+    <!-- Back to Site Link -->
+    <a href="index.html" style="color: var(--text-muted); font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 1.5rem; text-decoration: none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Return to Electroreck Home
+    </a>
+
+    <div class="auth-card">
+      <div class="auth-header">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+          <img src="assets/logo.png" alt="Electroreck Logo" style="width: 46px; height: 46px; border-radius: 50%; object-fit: contain; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); border: 1px solid rgba(245, 158, 11, 0.5);">
+          <span style="font-weight: 800; letter-spacing: 0.05em; font-size: 1.35rem; color: #fff;">ELECTRO<span style="color: var(--primary, #00d4ff);">RECK</span></span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.85rem;" id="authSubtitle">NIT Kurukshetra Electrical Engineering Society Portal</p>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="auth-tabs" id="authTabsNav">
+        <button type="button" class="auth-tab-btn active" id="tabBtnLogin" onclick="switchAuthTab('login')">Sign In</button>
+        <button type="button" class="auth-tab-btn" id="tabBtnSignup" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <div class="auth-body">
+        <!-- Global Feedback Alert Box -->
+        <div id="authAlert" class="alert-box">
+          <span id="authAlertMsg"></span>
+        </div>
+
+        <!-- ==================== 1. LOGIN FORM ==================== -->
+        <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="loginEmail">College Email Address</label>
+            <input class="form-input" type="email" id="loginEmail" placeholder="student@nitkkr.ac.in" required autocomplete="email">
+            <div class="form-field-error" id="loginEmailError"></div>
+          </div>
+
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+              <label class="form-label" for="loginPassword" style="margin-bottom: 0;">Password</label>
+              <a href="#" onclick="switchAuthTab('forgot'); return false;" style="font-size: 0.8rem; color: var(--primary); text-decoration: none;">Forgot password?</a>
+            </div>
+            <input class="form-input" type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+            <div class="form-field-error" id="loginPasswordError"></div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="loginSubmitBtn" style="width: 100%; margin-top: 0.5rem;">
+            Sign In to Account
+          </button>
+        </form>
+
+        <!-- ==================== 2. SIGNUP FORM ==================== -->
+        <form id="signupForm" style="display: none;" onsubmit="handleSignupSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="signupName">Full Name</label>
+            <input class="form-input" type="text" id="signupName" placeholder="e.g. Rohan Sharma" required autocomplete="name">
+            <div class="form-field-error" id="signupNameError"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signupEmail">NIT Kurukshetra Email</label>
+            <input class="form-input" type="email" id="signupEmail" placeholder="e.g. 12310045@nitkkr.ac.in" required autocomplete="email">
+            <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">
+              Only emails ending in <strong>@nitkkr.ac.in</strong> are eligible.
+            </span>
+            <div class="form-field-error" id="signupEmailError"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signupPassword">Password</label>
+            <input class="form-input" type="password" id="signupPassword" placeholder="Minimum 8 characters" minlength="8" required autocomplete="new-password">
+            <div class="form-field-error" id="signupPasswordError"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="signupConfirmPassword">Confirm Password</label>
+            <input class="form-input" type="password" id="signupConfirmPassword" placeholder="Re-enter password" minlength="8" required autocomplete="new-password">
+            <div class="form-field-error" id="signupConfirmPasswordError"></div>
+          </div>
+
+          <div style="font-size: 0.775rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.4;">
+            By signing up, you agree that verification is required before registering for events or society induction.
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="signupSubmitBtn" style="width: 100%;">
+            Create Student Account
+          </button>
+        </form>
+
+        <!-- ==================== 3. FORGOT PASSWORD FORM ==================== -->
+        <form id="forgotForm" style="display: none;" onsubmit="handleForgotSubmit(event)">
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem; line-height: 1.5;">
+            Enter your college email address. We will send you a secure link to reset your account password.
+          </p>
+
+          <div class="form-group">
+            <label class="form-label" for="forgotEmail">College Email (@nitkkr.ac.in)</label>
+            <input class="form-input" type="email" id="forgotEmail" placeholder="student@nitkkr.ac.in" required>
+            <div class="form-field-error" id="forgotEmailError"></div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="forgotSubmitBtn" style="width: 100%; margin-bottom: 0.75rem;">
+            Send Password Reset Link
+          </button>
+
+          <button type="button" class="btn btn-outline" style="width: 100%;" onclick="switchAuthTab('login')">
+            Back to Sign In
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Dev / Simulation Quick Persona Switcher -->
+    <div class="demo-bar">
+      <div>⚡ <strong>Quick Test Personas</strong> (Fast Role & Session Testing):</div>
+      <div class="demo-bar-actions">
+        <button type="button" class="demo-chip" onclick="applyDemoUser('admin@nitkkr.ac.in', 'Dr. S. K. Sharma', 'admin')">👑 Admin</button>
+        <button type="button" class="demo-chip" onclick="applyDemoUser('electrica.coord@nitkkr.ac.in', 'Aarav Patel', 'coordinator')">⚡ Electrica Coord</button>
+        <button type="button" class="demo-chip" onclick="applyDemoUser('advanza.coord@nitkkr.ac.in', 'Pooja Verma', 'coordinator')">🔧 Advanza Coord</button>
+        <button type="button" class="demo-chip" onclick="applyDemoUser('rohan.12310045@nitkkr.ac.in', 'Rohan Sharma', 'student')">🎓 Student</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectTarget = urlParams.get('redirect') || 'index.html';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // If user is already authenticated, check redirect
+      const profile = await Electroreck.auth.getCurrentProfile();
+      if (profile && !urlParams.get('force')) {
+        // If redirect is admin and user is not admin, go to my-registrations
+        if (redirectTarget.includes('admin') && profile.role === 'student') {
+          window.location.replace('my-registrations.html');
+        } else {
+          window.location.replace(redirectTarget);
+        }
+      }
+
+      // Check if view requested in URL
+      const view = urlParams.get('view');
+      if (view === 'signup') switchAuthTab('signup');
+      else if (view === 'forgot') switchAuthTab('forgot');
+    });
+
+    function showAlert(msg, type = 'danger') {
+      const box = document.getElementById('authAlert');
+      const text = document.getElementById('authAlertMsg');
+      box.className = `alert-box visible alert-${type}`;
+      text.textContent = msg;
+    }
+
+    function hideAlert() {
+      const box = document.getElementById('authAlert');
+      box.className = 'alert-box';
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('.form-field-error').forEach(el => {
+        el.textContent = '';
+        el.classList.remove('visible');
+      });
+      hideAlert();
+    }
+
+    function showFieldError(fieldId, errorMsg) {
+      const errEl = document.getElementById(fieldId + 'Error');
+      if (errEl) {
+        errEl.textContent = errorMsg;
+        errEl.classList.add('visible');
+      }
+    }
+
+    function switchAuthTab(tab) {
+      clearErrors();
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const forgotForm = document.getElementById('forgotForm');
+      const confirmNotice = document.getElementById('confirmEmailNotice');
+      const tabNav = document.getElementById('authTabsNav');
+      const btnLogin = document.getElementById('tabBtnLogin');
+      const btnSignup = document.getElementById('tabBtnSignup');
+
+      loginForm.style.display = 'none';
+      signupForm.style.display = 'none';
+      forgotForm.style.display = 'none';
+      tabNav.style.display = 'flex';
+
+      if (tab === 'login') {
+        loginForm.style.display = 'block';
+        btnLogin.classList.add('active');
+        btnSignup.classList.remove('active');
+      } else if (tab === 'signup') {
+        signupForm.style.display = 'block';
+        btnLogin.classList.remove('active');
+        btnSignup.classList.add('active');
+      } else if (tab === 'forgot') {
+        forgotForm.style.display = 'block';
+        tabNav.style.display = 'none';
+      }
+    }
+
+    // --- LOGIN HANDLER ---
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      clearErrors();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn = document.getElementById('loginSubmitBtn');
+
+      // Validation
+      if (!email.toLowerCase().endsWith('@nitkkr.ac.in')) {
+        showFieldError('loginEmail', 'Only college emails ending in @nitkkr.ac.in are permitted.');
+        return;
+      }
+      if (!password) {
+        showFieldError('loginPassword', 'Please enter your password.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying credentials...';
+
+      try {
+        await Electroreck.auth.signIn({ email, password });
+        showAlert('Signed in successfully! Redirecting...', 'success');
+        setTimeout(() => {
+          window.location.replace(redirectTarget);
+        }, 800);
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Sign In to Account';
+        showAlert(err.message || 'Login failed. Please check your credentials.', 'danger');
+      }
+    }
+
+    // --- SIGNUP HANDLER ---
+    async function handleSignupSubmit(e) {
+      e.preventDefault();
+      clearErrors();
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('signupConfirmPassword').value;
+      const btn = document.getElementById('signupSubmitBtn');
+
+      let hasError = false;
+      if (!name) {
+        showFieldError('signupName', 'Full Name is required.');
+        hasError = true;
+      }
+      if (!email.toLowerCase().endsWith('@nitkkr.ac.in')) {
+        showFieldError('signupEmail', 'College email must end in @nitkkr.ac.in');
+        hasError = true;
+      }
+      if (password.length < 8) {
+        showFieldError('signupPassword', 'Password must be at least 8 characters.');
+        hasError = true;
+      }
+      if (password !== confirmPassword) {
+        showFieldError('signupConfirmPassword', 'Passwords do not match.');
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Registering account...';
+
+      try {
+        await Electroreck.auth.signUp({
+          full_name: name,
+          email,
+          password,
+          confirm_password: confirmPassword
+        });
+
+        showAlert('Account created & signed in successfully! Redirecting...', 'success');
+        setTimeout(() => {
+          window.location.replace(redirectTarget);
+        }, 600);
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Create Student Account';
+        showAlert(err.message || 'Signup failed.', 'danger');
+      }
+    }
+
+    // --- FORGOT PASSWORD HANDLER ---
+    async function handleForgotSubmit(e) {
+      e.preventDefault();
+      clearErrors();
+      const email = document.getElementById('forgotEmail').value.trim();
+      const btn = document.getElementById('forgotSubmitBtn');
+
+      if (!email.toLowerCase().endsWith('@nitkkr.ac.in')) {
+        showFieldError('forgotEmail', 'Must be a valid @nitkkr.ac.in college email.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Sending reset instructions...';
+
+      try {
+        await Electroreck.auth.resetPassword(email);
+        showAlert(`Password reset instructions have been sent to ${email}. Check your inbox.`, 'success');
+        btn.disabled = false;
+        btn.textContent = 'Resend Reset Link';
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Send Password Reset Link';
+        showAlert(err.message || 'Could not send reset link.', 'danger');
+      }
+    }
+
+    // Demo Persona Selector
+    function applyDemoUser(email, name, role) {
+      Electroreck.auth.setSimulatedUser(email);
+    }
+  </script>
+</body>
+</html>

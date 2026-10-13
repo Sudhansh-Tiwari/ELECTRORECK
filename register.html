@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Registration — Electroreck | NIT Kurukshetra</title>
+  <meta name="description" content="Register for Electrica, Advanza, Digispark, and Vidhwaan events at Electroreck NIT Kurukshetra.">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <style>
+    .reg-page-container {
+      max-width: 800px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .reg-card {
+      background: var(--card-bg, #0b1120);
+      border: 1px solid var(--border-color, rgba(0, 212, 255, 0.2));
+      border-radius: 16px;
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+    }
+
+    .reg-header {
+      padding: 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(0, 212, 255, 0.06) 0%, transparent 100%);
+    }
+
+    .reg-body {
+      padding: 2rem;
+    }
+
+    .event-meta-banner {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .meta-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .meta-stat-label {
+      font-size: 0.725rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .meta-stat-val {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .form-field-error {
+      color: #ef4444;
+      font-size: 0.775rem;
+      margin-top: 0.35rem;
+      display: none;
+      font-weight: 500;
+    }
+
+    .form-field-error.visible {
+      display: block;
+    }
+
+    .team-member-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed var(--border-color);
+      border-radius: 8px;
+    }
+
+    /* DIGITAL PASS STYLES */
+    .pass-container {
+      display: none;
+      padding: 2rem;
+    }
+
+    .ticket-pass {
+      background: linear-gradient(135deg, #090e1a 0%, #111a2e 100%);
+      border: 2px solid var(--primary, #00d4ff);
+      border-radius: 16px;
+      box-shadow: 0 0 35px rgba(0, 212, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .pass-top-strip {
+      background: var(--primary, #00d4ff);
+      color: #060913;
+      padding: 0.5rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .pass-main {
+      padding: 2rem;
+    }
+
+    .pass-id-badge {
+      font-family: monospace;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary, #00d4ff);
+      background: rgba(0, 212, 255, 0.1);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      display: inline-block;
+      letter-spacing: 0.05em;
+    }
+
+    .pass-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.25rem;
+      margin: 1.5rem 0;
+      padding: 1.25rem 0;
+      border-top: 1px dashed rgba(255, 255, 255, 0.15);
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+    }
+
+    .pass-barcode {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 1rem;
+    }
+
+    .barcode-svg {
+      width: 220px;
+      height: 48px;
+    }
+
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .navbar, .reg-page-nav, .no-print {
+        display: none !important;
+      }
+      .pass-container {
+        display: block !important;
+        padding: 0 !important;
+      }
+      .ticket-pass {
+        border: 2px solid #000 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        color: #000 !important;
+      }
+      .pass-top-strip {
+        background: #000 !important;
+        color: #fff !important;
+      }
+      .meta-stat-val, .pass-title {
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar" style="position: relative;">
+    <div class="container nav-container">
+      <a href="index.html" class="brand-link">
+        <div class="brand-icon">
+          <img src="assets/logo.png" alt="Electroreck Logo">
+        </div>
+        <span class="text-foreground">Electroreck</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="index.html#events" class="nav-link">Events</a>
+        <a href="induction.html" class="nav-link">Society Induction</a>
+        <a href="my-registrations.html" class="nav-link">My Registrations</a>
+      </div>
+
+      <div class="nav-actions">
+        <span id="userNavEmail" style="font-size: 0.85rem; color: var(--text-muted); display: none;"></span>
+        <button class="btn btn-outline" id="authNavBtn" onclick="handleAuthNav()">Sign In</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="reg-page-container">
+    <div class="reg-card">
+      
+      <!-- ==================== REGISTRATION FORM VIEW ==================== -->
+      <div id="formContainer">
+        <div class="reg-header">
+          <span class="event-cat-badge bg-primary-10" id="headerCategoryBadge" style="color: var(--primary);">Official Registration</span>
+          <h1 style="font-size: 1.75rem; font-weight: 800; margin: 0.5rem 0 0.25rem; color: #fff;">
+            Event Registration — Techspardha 2026
+          </h1>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">
+            Secure your participation pass for Electroreck society events at NIT Kurukshetra.
+          </p>
+        </div>
+
+        <div class="reg-body">
+          <form id="eventRegForm" onsubmit="handleRegistrationSubmit(event)">
+            
+            <!-- Global Alert -->
+            <div id="formGlobalError" class="alert-box alert-danger" style="display: none; margin-bottom: 1.25rem;">
+              <span id="formGlobalErrorMsg"></span>
+            </div>
+
+            <!-- Event Selector & Live Event Meta -->
+            <div class="form-group">
+              <label class="form-label" for="eventSelector">Select Event</label>
+              <select class="form-input" id="eventSelector" onchange="onEventSelected(this.value)" required>
+                <option value="">Loading events...</option>
+              </select>
+              <div class="form-field-error" id="eventSelectorError"></div>
+            </div>
+
+            <!-- Event Status Banner -->
+            <div class="event-meta-banner" id="eventMetaBanner">
+              <div class="meta-stat">
+                <span class="meta-stat-label">Category</span>
+                <span class="meta-stat-val" id="metaCategory">—</span>
+              </div>
+              <div class="meta-stat">
+                <span class="meta-stat-label">Venue</span>
+                <span class="meta-stat-val" id="metaVenue">—</span>
+              </div>
+              <div class="meta-stat">
+                <span class="meta-stat-label">Deadline</span>
+                <span class="meta-stat-val" id="metaDeadline">—</span>
+              </div>
+              <div class="meta-stat">
+                <span class="meta-stat-label">Seats Available</span>
+                <span class="meta-stat-val" id="metaSeats">—</span>
+              </div>
+              <div class="meta-stat">
+                <span class="meta-stat-label">Status</span>
+                <span class="meta-stat-val" id="metaStatus">—</span>
+              </div>
+            </div>
+
+            <!-- Personal Student Details -->
+            <div class="form-row form-group">
+              <div>
+                <label class="form-label" for="regFullName">Full Name</label>
+                <input class="form-input" type="text" id="regFullName" required placeholder="Full Name">
+                <div class="form-field-error" id="regFullNameError"></div>
+              </div>
+              <div>
+                <label class="form-label" for="regEmail">College Email (Read-Only)</label>
+                <input class="form-input" type="email" id="regEmail" readonly style="opacity: 0.8; cursor: not-allowed; background: rgba(255,255,255,0.03);">
+                <div class="form-field-error" id="regEmailError"></div>
+              </div>
+            </div>
+
+            <div class="form-row form-group">
+              <div>
+                <label class="form-label" for="regRollNo">NIT KKR Roll Number (9 Digits)</label>
+                <input class="form-input" type="text" id="regRollNo" placeholder="e.g. 123100045" maxlength="9" required>
+                <div class="form-field-error" id="regRollNoError"></div>
+              </div>
+              <div>
+                <label class="form-label" for="regPhone">Contact Phone (10 Digits)</label>
+                <input class="form-input" type="tel" id="regPhone" placeholder="e.g. 9876543210" maxlength="10" required>
+                <div class="form-field-error" id="regPhoneError"></div>
+              </div>
+            </div>
+
+            <div class="form-row form-group">
+              <div>
+                <label class="form-label" for="regDept">Department</label>
+                <select class="form-input" id="regDept" required>
+                  <option value="">Select Department</option>
+                  <option value="Electrical Engineering">Electrical Engineering</option>
+                  <option value="Electronics & Communication">Electronics & Communication Engineering</option>
+                  <option value="Computer Engineering">Computer Engineering</option>
+                  <option value="Information Technology">Information Technology</option>
+                  <option value="Mechanical Engineering">Mechanical Engineering</option>
+                  <option value="Civil Engineering">Civil Engineering</option>
+                  <option value="Production & Industrial">Production & Industrial Engineering</option>
+                  <option value="Other Department">Other Department</option>
+                </select>
+                <div class="form-field-error" id="regDeptError"></div>
+              </div>
+              <div>
+                <label class="form-label" for="regYear">Year of Study</label>
+                <select class="form-input" id="regYear" required>
+                  <option value="">Select Year</option>
+                  <option value="1st Year (B.Tech)">1st Year (B.Tech)</option>
+                  <option value="2nd Year (B.Tech)">2nd Year (B.Tech)</option>
+                  <option value="3rd Year (B.Tech)">3rd Year (B.Tech)</option>
+                  <option value="4th Year (B.Tech)">4th Year (B.Tech)</option>
+                  <option value="Postgraduate (M.Tech/PhD)">Postgraduate (M.Tech/PhD)</option>
+                </select>
+                <div class="form-field-error" id="regYearError"></div>
+              </div>
+            </div>
+
+            <!-- Team Fields (Visible only for Team Events) -->
+            <div id="teamSection" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+              <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff;">
+                Team Formation Details (<span id="teamSizeLimitLabel">2–4 members</span>)
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                As the registering student, you are designated as the <strong>Team Leader</strong>. Add teammate names and roll numbers below.
+              </p>
+
+              <div class="form-group">
+                <label class="form-label" for="regTeamName">Team Name</label>
+                <input class="form-input" type="text" id="regTeamName" placeholder="e.g. Spark Masters">
+                <div class="form-field-error" id="regTeamNameError"></div>
+              </div>
+
+              <div id="teamMembersList"></div>
+
+              <button type="button" class="btn btn-outline" id="addMemberBtn" onclick="addTeamMemberField()" style="margin-bottom: 1.25rem; font-size: 0.85rem;">
+                + Add Teammate
+              </button>
+            </div>
+
+            <!-- Consent & Privacy Note -->
+            <div style="margin: 1.75rem 0 1.5rem; padding: 1rem; background: rgba(0, 212, 255, 0.04); border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 8px;">
+              <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer; font-size: 0.85rem; color: var(--text-main);">
+                <input type="checkbox" id="regConsent" required style="margin-top: 0.2rem;">
+                <span>
+                  I confirm that all provided details are authentic and agree to abide by the event rules of Electroreck NIT Kurukshetra.
+                </span>
+              </label>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; padding-left: 1.6rem;">
+                🔒 <em>Privacy Note: Your personal and contact details are stored securely in compliance with institutional guidelines and will only be accessed by authorized event coordinators for logistical notices and pass validation.</em>
+              </div>
+              <div class="form-field-error" id="regConsentError"></div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary" id="regSubmitBtn" style="width: 100%; padding: 0.9rem; font-size: 1rem;">
+              Confirm & Generate Pass
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ==================== SUCCESS PASS VIEW ==================== -->
+      <div id="passContainer" class="pass-container">
+        <div style="text-align: center; margin-bottom: 1.5rem;" class="no-print">
+          <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; display: inline-flex; align-items: center; justify-content: center; color: #10b981; margin-bottom: 0.5rem;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h2 style="font-size: 1.4rem; font-weight: 800; color: #fff;">Registration Confirmed!</h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">
+            Your entry pass has been issued and emailed to <strong id="passEmailNotice" style="color: var(--primary);"></strong>.
+          </p>
+        </div>
+
+        <!-- Official Ticket -->
+        <div class="ticket-pass" id="printableTicket">
+          <div class="pass-top-strip">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <img src="assets/logo.png" alt="Electroreck Logo" style="width: 22px; height: 22px; border-radius: 50%;">
+              <span>Techspardha 2026 · Official Entry Pass</span>
+            </div>
+            <span id="passStatusBadge">STATUS: CONFIRMED</span>
+          </div>
+
+          <div class="pass-main">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Pass Identifier</span>
+                <div><span class="pass-id-badge" id="passIdDisplay">ER-2026-00000</span></div>
+              </div>
+              <div style="text-align: right;">
+                <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Society / Organizer</span>
+                <div style="font-weight: 700; color: #fff;">Electroreck, EE Dept, NIT KKR</div>
+              </div>
+            </div>
+
+            <h2 class="pass-title" id="passEventTitle" style="font-size: 1.6rem; font-weight: 800; color: #fff; margin: 1.25rem 0 0.25rem;">
+              Electrica 2026
+            </h2>
+            <p id="passEventTagline" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">
+              Where circuits meet creativity
+            </p>
+
+            <div class="pass-grid">
+              <div class="meta-stat">
+                <span class="meta-stat-label">Participant / Leader</span>
+                <span class="meta-stat-val" id="passParticipantName">—</span>
+              </div>
+              <div class="meta-stat">
+                <span class="meta-stat-label">Roll Number</span>
+                <span class="meta-stat-val" id="passRollNo">—</span>
+              </div>
+              <div class="meta-stat">
+                <span class="meta-stat-label">Department & Year</span>
+                <span class="meta-stat-val" id="passDeptYear">—</span>
+              </div>
+              <div class="meta-stat">
+                <span class="meta-stat-label">Venue</span>
+                <span class="meta-stat-val" id="passVenue">—</span>
+              </div>
+              <div class="meta-stat">
+                <span class="meta-stat-label">Date & Time</span>
+                <span class="meta-stat-val" id="passDateTime">—</span>
+              </div>
+              <div class="meta-stat" id="passTeamStat" style="display: none;">
+                <span class="meta-stat-label">Team Name</span>
+                <span class="meta-stat-val" id="passTeamName">—</span>
+              </div>
+            </div>
+
+            <div id="passTeamMembersBox" style="display: none; margin-bottom: 1.25rem; font-size: 0.825rem; color: var(--text-muted);">
+              <span style="font-weight: 600; color: var(--text-main);">Teammates:</span> <span id="passTeamMembersList"></span>
+            </div>
+
+            <!-- Barcode SVG -->
+            <div class="pass-barcode">
+              <svg class="barcode-svg" viewBox="0 0 200 40">
+                <rect x="0" y="0" width="4" height="40" fill="currentColor"/>
+                <rect x="8" y="0" width="2" height="40" fill="currentColor"/>
+                <rect x="14" y="0" width="6" height="40" fill="currentColor"/>
+                <rect x="24" y="0" width="2" height="40" fill="currentColor"/>
+                <rect x="30" y="0" width="4" height="40" fill="currentColor"/>
+                <rect x="38" y="0" width="8" height="40" fill="currentColor"/>
+                <rect x="50" y="0" width="3" height="40" fill="currentColor"/>
+                <rect x="58" y="0" width="5" height="40" fill="currentColor"/>
+                <rect x="68" y="0" width="2" height="40" fill="currentColor"/>
+                <rect x="74" y="0" width="7" height="40" fill="currentColor"/>
+                <rect x="86" y="0" width="3" height="40" fill="currentColor"/>
+                <rect x="94" y="0" width="5" height="40" fill="currentColor"/>
+                <rect x="104" y="0" width="2" height="40" fill="currentColor"/>
+                <rect x="110" y="0" width="6" height="40" fill="currentColor"/>
+                <rect x="120" y="0" width="4" height="40" fill="currentColor"/>
+                <rect x="128" y="0" width="2" height="40" fill="currentColor"/>
+                <rect x="134" y="0" width="6" height="40" fill="currentColor"/>
+                <rect x="144" y="0" width="3" height="40" fill="currentColor"/>
+                <rect x="152" y="0" width="5" height="40" fill="currentColor"/>
+                <rect x="162" y="0" width="2" height="40" fill="currentColor"/>
+                <rect x="168" y="0" width="6" height="40" fill="currentColor"/>
+                <rect x="178" y="0" width="3" height="40" fill="currentColor"/>
+                <rect x="186" y="0" width="5" height="40" fill="currentColor"/>
+                <rect x="194" y="0" width="4" height="40" fill="currentColor"/>
+              </svg>
+              <span style="font-size: 0.7rem; font-family: monospace; letter-spacing: 0.15em; color: var(--text-muted);" id="passBarcodeId">ER-2026-00000</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Controls -->
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;" class="no-print">
+          <button type="button" class="btn btn-primary" onclick="window.print()" style="flex: 1;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>
+            Print / Save Pass (PDF)
+          </button>
+          <a href="my-registrations.html" class="btn btn-outline" style="flex: 1; text-align: center; text-decoration: none;">
+            Go to My Registrations
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let currentEvents = [];
+    let selectedEvent = null;
+    let currentUserProfile = null;
+    let teamMemberCount = 0;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Check Authentication
+      currentUserProfile = await Electroreck.auth.getCurrentProfile();
+      if (!currentUserProfile) {
+        // Redirect to login preserving this registration URL
+        const currentUrl = window.location.pathname + window.location.search;
+        window.location.replace(`login.html?redirect=${encodeURIComponent(currentUrl)}`);
+        return;
+      }
+
+      // Update Nav
+      const userEmailEl = document.getElementById('userNavEmail');
+      const authBtn = document.getElementById('authNavBtn');
+      userEmailEl.textContent = currentUserProfile.email;
+      userEmailEl.style.display = 'inline-block';
+      authBtn.textContent = 'Sign Out';
+      authBtn.onclick = async () => {
+        await Electroreck.auth.signOut();
+        window.location.replace('login.html');
+      };
+
+      // Pre-fill user details
+      document.getElementById('regFullName').value = currentUserProfile.full_name || '';
+      document.getElementById('regEmail').value = currentUserProfile.email || '';
+
+      // 2. Fetch Events from Database
+      await loadEvents();
+    });
+
+    function handleAuthNav() {
+      if (currentUserProfile) {
+        Electroreck.auth.signOut().then(() => window.location.replace('login.html'));
+      } else {
+        window.location.href = 'login.html';
+      }
+    }
+
+    async function loadEvents() {
+      try {
+        currentEvents = await Electroreck.events.getAll();
+        const selector = document.getElementById('eventSelector');
+        selector.innerHTML = '<option value="">-- Choose an Event --</option>';
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const querySlug = urlParams.get('event');
+
+        let matchedId = null;
+
+        currentEvents.forEach(ev => {
+          const opt = document.createElement('option');
+          opt.value = ev.id;
+          opt.textContent = `${ev.title} (${ev.category}) — ${ev.computed_status} [${ev.seats_left} seats left]`;
+          selector.appendChild(opt);
+
+          if (querySlug && (ev.slug === querySlug.toLowerCase() || ev.id === querySlug)) {
+            matchedId = ev.id;
+          }
+        });
+
+        if (matchedId) {
+          selector.value = matchedId;
+          onEventSelected(matchedId);
+        } else if (currentEvents.length > 0) {
+          selector.value = currentEvents[0].id;
+          onEventSelected(currentEvents[0].id);
+        }
+      } catch (err) {
+        console.error('Failed to load events:', err);
+      }
+    }
+
+    function onEventSelected(eventId) {
+      clearErrors();
+      selectedEvent = currentEvents.find(e => e.id === eventId);
+      if (!selectedEvent) return;
+
+      document.getElementById('headerCategoryBadge').textContent = `${selectedEvent.category} Event`;
+      document.getElementById('metaCategory').textContent = selectedEvent.category;
+      document.getElementById('metaVenue').textContent = selectedEvent.venue;
+      document.getElementById('metaDeadline').textContent = new Date(selectedEvent.registration_deadline).toLocaleDateString('en-IN', {
+        day: '2-digit', month: 'short', year: 'numeric'
+      });
+      document.getElementById('metaSeats').textContent = `${selectedEvent.seats_left} / ${selectedEvent.max_seats} left`;
+      
+      const statusEl = document.getElementById('metaStatus');
+      statusEl.textContent = selectedEvent.computed_status;
+      if (selectedEvent.computed_status === 'Open') {
+        statusEl.style.color = '#10b981';
+      } else {
+        statusEl.style.color = '#ef4444';
+      }
+
+      // Handle Team Section
+      const teamSection = document.getElementById('teamSection');
+      const teamLabel = document.getElementById('teamSizeLimitLabel');
+      const teamMembersList = document.getElementById('teamMembersList');
+      teamMembersList.innerHTML = '';
+      teamMemberCount = 0;
+
+      if (selectedEvent.max_team_size > 1) {
+        teamSection.style.display = 'block';
+        teamLabel.textContent = `${selectedEvent.min_team_size}–${selectedEvent.max_team_size} members`;
+        document.getElementById('regTeamName').required = true;
+        
+        // Add initial teammate fields to meet minimum team size
+        const neededTeammates = Math.max(0, selectedEvent.min_team_size - 1);
+        for (let i = 0; i < neededTeammates; i++) {
+          addTeamMemberField(true);
+        }
+      } else {
+        teamSection.style.display = 'none';
+        document.getElementById('regTeamName').required = false;
+      }
+
+      // Enable/Disable Submit based on Open Status
+      const submitBtn = document.getElementById('regSubmitBtn');
+      if (selectedEvent.computed_status !== 'Open') {
+        submitBtn.disabled = true;
+        submitBtn.textContent = `Registration ${selectedEvent.computed_status}`;
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Confirm & Generate Pass';
+      }
+    }
+
+    function addTeamMemberField(isRequired = false) {
+      if (!selectedEvent) return;
+      const maxExtraMembers = selectedEvent.max_team_size - 1;
+      if (teamMemberCount >= maxExtraMembers) {
+        alert(`Maximum team limit of ${selectedEvent.max_team_size} reached for this event.`);
+        return;
+      }
+
+      teamMemberCount++;
+      const list = document.getElementById('teamMembersList');
+      const row = document.createElement('div');
+      row.className = 'team-member-row';
+      row.id = `memberRow_${teamMemberCount}`;
+      row.innerHTML = `
+        <input class="form-input member-name" type="text" placeholder="Teammate Full Name" ${isRequired ? 'required' : ''}>
+        <input class="form-input member-roll" type="text" placeholder="Roll No (9 digits)" maxlength="9" ${isRequired ? 'required' : ''}>
+        ${!isRequired ? `<button type="button" class="btn btn-outline" style="padding: 0.5rem; color: #ef4444;" onclick="removeMemberRow(${teamMemberCount})" title="Remove">✕</button>` : '<span></span>'}
+      `;
+      list.appendChild(row);
+    }
+
+    function removeMemberRow(id) {
+      const row = document.getElementById(`memberRow_${id}`);
+      if (row) {
+        row.remove();
+        teamMemberCount--;
+      }
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('.form-field-error').forEach(el => {
+        el.textContent = '';
+        el.classList.remove('visible');
+      });
+      const globalErr = document.getElementById('formGlobalError');
+      globalErr.style.display = 'none';
+    }
+
+    function showFieldError(fieldId, errorMsg) {
+      const errEl = document.getElementById(fieldId + 'Error');
+      if (errEl) {
+        errEl.textContent = errorMsg;
+        errEl.classList.add('visible');
+      }
+    }
+
+    function showGlobalError(msg) {
+      const globalErr = document.getElementById('formGlobalError');
+      const globalMsg = document.getElementById('formGlobalErrorMsg');
+      globalMsg.textContent = msg;
+      globalErr.style.display = 'flex';
+      globalErr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // --- REGISTRATION SUBMIT HANDLER ---
+    async function handleRegistrationSubmit(e) {
+      e.preventDefault();
+      clearErrors();
+
+      if (!selectedEvent) {
+        showFieldError('eventSelector', 'Please select an event.');
+        return;
+      }
+
+      const fullName = document.getElementById('regFullName').value.trim();
+      const rollNumber = document.getElementById('regRollNo').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const department = document.getElementById('regDept').value;
+      const yearOfStudy = document.getElementById('regYear').value;
+      const consentGiven = document.getElementById('regConsent').checked;
+
+      let hasError = false;
+
+      if (!fullName) {
+        showFieldError('regFullName', 'Full Name is required.');
+        hasError = true;
+      }
+      if (!/^[0-9]{9}$/.test(rollNumber)) {
+        showFieldError('regRollNo', 'Roll number must be exactly 9 digits.');
+        hasError = true;
+      }
+      if (!/^[0-9]{10}$/.test(phone)) {
+        showFieldError('regPhone', 'Phone number must be exactly 10 digits.');
+        hasError = true;
+      }
+      if (!department) {
+        showFieldError('regDept', 'Please select your department.');
+        hasError = true;
+      }
+      if (!yearOfStudy) {
+        showFieldError('regYear', 'Please select your year of study.');
+        hasError = true;
+      }
+      if (!consentGiven) {
+        showFieldError('regConsent', 'You must agree to the rules and privacy consent.');
+        hasError = true;
+      }
+
+      // Collect Teammates
+      let teamName = null;
+      let teamMembers = [];
+      if (selectedEvent.max_team_size > 1) {
+        teamName = document.getElementById('regTeamName').value.trim();
+        if (!teamName) {
+          showFieldError('regTeamName', 'Team Name is required for team events.');
+          hasError = true;
+        }
+
+        const rows = document.querySelectorAll('.team-member-row');
+        rows.forEach(r => {
+          const mName = r.querySelector('.member-name').value.trim();
+          const mRoll = r.querySelector('.member-roll').value.trim();
+          if (mName && mRoll) {
+            if (!/^[0-9]{9}$/.test(mRoll)) {
+              showGlobalError(`Teammate "${mName}" has an invalid roll number. Must be exactly 9 digits.`);
+              hasError = true;
+            }
+            teamMembers.push({ name: mName, roll_number: mRoll });
+          } else if (mName || mRoll) {
+            showGlobalError('Please provide both name and 9-digit roll number for all teammates.');
+            hasError = true;
+          }
+        });
+
+        const totalTeamSize = 1 + teamMembers.length;
+        if (totalTeamSize < selectedEvent.min_team_size || totalTeamSize > selectedEvent.max_team_size) {
+          showGlobalError(`Team size must be between ${selectedEvent.min_team_size} and ${selectedEvent.max_team_size} members.`);
+          hasError = true;
+        }
+      }
+
+      if (hasError) return;
+
+      const submitBtn = document.getElementById('regSubmitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing registration & generating pass...';
+
+      try {
+        const registration = await Electroreck.registrations.register({
+          event_id: selectedEvent.id,
+          full_name: fullName,
+          roll_number: rollNumber,
+          department,
+          year_of_study: yearOfStudy,
+          phone,
+          team_name: teamName,
+          team_members: teamMembers,
+          consent_given: true
+        });
+
+        // Send Email Confirmation
+        await Electroreck.email.sendPassConfirmation(registration);
+
+        // Display Official Pass
+        renderPass(registration);
+
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Confirm & Generate Pass';
+        
+        // Map error to relevant field if possible
+        const errText = err.message || 'Registration failed.';
+        if (errText.includes('Roll Number') || errText.includes('roll_number')) {
+          showFieldError('regRollNo', errText);
+        } else if (errText.includes('already registered')) {
+          showGlobalError(errText);
+        } else if (errText.includes('capacity') || errText.includes('seats')) {
+          showGlobalError(errText);
+        } else {
+          showGlobalError(errText);
+        }
+      }
+    }
+
+    function renderPass(reg) {
+      document.getElementById('formContainer').style.display = 'none';
+      const passBox = document.getElementById('passContainer');
+      passBox.style.display = 'block';
+
+      document.getElementById('passEmailNotice').textContent = reg.email;
+      document.getElementById('passIdDisplay').textContent = reg.pass_id;
+      document.getElementById('passBarcodeId').textContent = reg.pass_id;
+      document.getElementById('passEventTitle').textContent = selectedEvent.title;
+      document.getElementById('passEventTagline').textContent = selectedEvent.tagline || 'Techspardha 2026';
+      document.getElementById('passParticipantName').textContent = reg.full_name;
+      document.getElementById('passRollNo').textContent = reg.roll_number;
+      document.getElementById('passDeptYear').textContent = `${reg.department} (${reg.year_of_study})`;
+      document.getElementById('passVenue').textContent = selectedEvent.venue;
+      document.getElementById('passDateTime').textContent = new Date(selectedEvent.event_date).toLocaleString('en-IN', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+
+      if (reg.team_name) {
+        document.getElementById('passTeamStat').style.display = 'flex';
+        document.getElementById('passTeamName').textContent = reg.team_name;
+        if (reg.team_members && reg.team_members.length > 0) {
+          document.getElementById('passTeamMembersBox').style.display = 'block';
+          document.getElementById('passTeamMembersList').textContent = reg.team_members.map(m => `${m.name} (${m.roll_number})`).join(', ');
+        }
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

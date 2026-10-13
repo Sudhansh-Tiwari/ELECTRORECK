@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Registrations & Passes — Electroreck | NIT Kurukshetra</title>
+  <meta name="description" content="Access your official event entry passes, registration status, and society induction application.">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <style>
+    .my-reg-wrapper {
+      max-width: 1000px;
+      margin: 2.5rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .user-greeting h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 2rem 0 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .passes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .pass-card {
+      background: var(--card-bg, #0b1120);
+      border: 1px solid var(--border-color, rgba(0, 212, 255, 0.2));
+      border-radius: 14px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .pass-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary, #00d4ff);
+    }
+
+    .pass-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .pass-id-chip {
+      font-family: monospace;
+      font-size: 0.825rem;
+      font-weight: 700;
+      background: rgba(0, 212, 255, 0.1);
+      color: var(--primary, #00d4ff);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 212, 255, 0.25);
+    }
+
+    .status-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .status-confirmed {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-rejected {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .status-cancelled {
+      background: rgba(156, 163, 175, 0.15);
+      color: #9ca3af;
+      border: 1px solid rgba(156, 163, 175, 0.3);
+    }
+
+    .empty-state {
+      padding: 3rem 1.5rem;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed var(--border-color);
+      border-radius: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Modal for Pass Details & Print */
+    .modal-pass-body {
+      background: #090e1a;
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 2rem;
+      color: #fff;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printPassArea, #printPassArea * {
+        visibility: visible;
+      }
+      #printPassArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #fff !important;
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar" style="position: relative;">
+    <div class="container nav-container">
+      <a href="index.html" class="brand-link">
+        <div class="brand-icon">
+          <img src="assets/logo.png" alt="Electroreck Logo">
+        </div>
+        <span class="text-foreground">Electroreck</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="index.html#events" class="nav-link">Events</a>
+        <a href="register.html" class="nav-link">Register for Event</a>
+        <a href="induction.html" class="nav-link">Society Induction</a>
+        <a href="my-registrations.html" class="nav-link active">My Registrations</a>
+      </div>
+
+      <div class="nav-actions">
+        <span id="userNavRole" style="font-size: 0.75rem; text-transform: uppercase; padding: 0.2rem 0.5rem; background: rgba(0, 212, 255, 0.1); border-radius: 4px; color: var(--primary);">Student</span>
+        <button class="btn btn-outline" id="logoutBtn" onclick="handleSignOut()">Sign Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="my-reg-wrapper">
+    
+    <!-- User Greeting Banner -->
+    <div class="dashboard-header">
+      <div class="user-greeting">
+        <h1 id="welcomeGreeting">Welcome, Student</h1>
+        <p style="color: var(--text-muted); font-size: 0.875rem;" id="userEmailDisplay">Loading account details...</p>
+      </div>
+      <div style="display: flex; gap: 0.75rem;">
+        <a href="register.html" class="btn btn-primary" style="text-decoration: none;">
+          + Register for Event
+        </a>
+        <a href="induction.html" class="btn btn-outline" style="text-decoration: none;">
+          Join Society
+        </a>
+      </div>
+    </div>
+
+    <!-- 1. EVENT REGISTRATIONS & ENTRY PASSES -->
+    <div class="section-title">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      Techspardha 2026 Event Entry Passes
+    </div>
+
+    <div id="passesContainer" class="passes-grid">
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        Loading your registered events...
+      </div>
+    </div>
+
+    <!-- 2. SOCIETY INDUCTION APPLICATION -->
+    <div class="section-title" style="margin-top: 3rem;">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      Society Induction Status (Recruitment 2026)
+    </div>
+
+    <div id="inductionContainer">
+      <div class="empty-state">
+        Checking induction application...
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PASS VIEW MODAL -->
+  <div class="modal-backdrop" id="passModal" onclick="if(event.target === this) closePassModal();">
+    <div class="modal-dialog" style="max-width: 620px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Official Event Entry Pass</h3>
+        <button class="modal-close-btn" onclick="closePassModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.5rem;" id="printPassArea">
+        <div style="background: linear-gradient(135deg, #090e1a 0%, #111a2e 100%); border: 2px solid var(--primary, #00d4ff); border-radius: 14px; padding: 1.75rem; box-shadow: 0 0 30px rgba(0, 212, 255, 0.15);">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 1rem; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <img src="assets/logo.png" alt="Electroreck Logo" style="width: 32px; height: 32px; border-radius: 50%;">
+              <div>
+                <span style="font-size: 0.725rem; color: var(--text-muted); text-transform: uppercase;">Pass ID</span>
+                <div style="font-family: monospace; font-size: 1.15rem; font-weight: 700; color: var(--primary);" id="modalPassId">ER-2026-00000</div>
+              </div>
+            </div>
+            <div id="modalPassStatus" class="status-tag status-confirmed">Confirmed</div>
+          </div>
+
+          <h2 id="modalEventTitle" style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;">Event Title</h2>
+          <p id="modalEventVenue" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.25rem;">Venue & Date</p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; font-size: 0.85rem;">
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 0.725rem;">PARTICIPANT</span>
+              <strong id="modalParticipantName" style="color: #fff;">—</strong>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 0.725rem;">ROLL NUMBER</span>
+              <strong id="modalRollNo" style="color: #fff;">—</strong>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 0.725rem;">DEPARTMENT</span>
+              <span id="modalDept" style="color: var(--text-main);">—</span>
+            </div>
+            <div>
+              <span style="color: var(--text-muted); display: block; font-size: 0.725rem;">PHONE</span>
+              <span id="modalPhone" style="color: var(--text-main);">—</span>
+            </div>
+          </div>
+
+          <div id="modalTeamBox" style="display: none; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.825rem;">
+            <div style="color: var(--primary); font-weight: 700; margin-bottom: 0.25rem;" id="modalTeamName">Team Name</div>
+            <div style="color: var(--text-muted);" id="modalTeamMembers"></div>
+          </div>
+
+          <!-- Barcode simulation -->
+          <div style="text-align: center; border-top: 1px dashed rgba(255,255,255,0.15); padding-top: 1rem;">
+            <svg style="width: 200px; height: 35px;" viewBox="0 0 200 35">
+              <rect x="0" y="0" width="3" height="35" fill="currentColor"/>
+              <rect x="6" y="0" width="5" height="35" fill="currentColor"/>
+              <rect x="15" y="0" width="2" height="35" fill="currentColor"/>
+              <rect x="22" y="0" width="6" height="35" fill="currentColor"/>
+              <rect x="34" y="0" width="3" height="35" fill="currentColor"/>
+              <rect x="42" y="0" width="7" height="35" fill="currentColor"/>
+              <rect x="55" y="0" width="2" height="35" fill="currentColor"/>
+              <rect x="62" y="0" width="4" height="35" fill="currentColor"/>
+              <rect x="72" y="0" width="8" height="35" fill="currentColor"/>
+              <rect x="85" y="0" width="3" height="35" fill="currentColor"/>
+              <rect x="94" y="0" width="5" height="35" fill="currentColor"/>
+              <rect x="105" y="0" width="2" height="35" fill="currentColor"/>
+              <rect x="112" y="0" width="6" height="35" fill="currentColor"/>
+              <rect x="124" y="0" width="4" height="35" fill="currentColor"/>
+              <rect x="134" y="0" width="5" height="35" fill="currentColor"/>
+              <rect x="145" y="0" width="2" height="35" fill="currentColor"/>
+              <rect x="153" y="0" width="7" height="35" fill="currentColor"/>
+              <rect x="166" y="0" width="3" height="35" fill="currentColor"/>
+              <rect x="175" y="0" width="5" height="35" fill="currentColor"/>
+              <rect x="186" y="0" width="2" height="35" fill="currentColor"/>
+              <rect x="193" y="0" width="5" height="35" fill="currentColor"/>
+            </svg>
+            <div style="font-size: 0.7rem; font-family: monospace; color: var(--text-muted); margin-top: 0.25rem;">
+              ELECTRORECK OFFICIAL VERIFICATION SEAL
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;" class="no-print">
+          <button class="btn btn-primary" onclick="window.print()" style="flex: 1;">Print / Save Pass (PDF)</button>
+          <button class="btn btn-outline" onclick="closePassModal()" style="flex: 1;">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let myRegistrationsList = [];
+    let myInductionApp = null;
+    let currentProfile = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Enforce Authentication
+      currentProfile = await Electroreck.auth.getCurrentProfile();
+      if (!currentProfile) {
+        window.location.replace('login.html?redirect=my-registrations.html');
+        return;
+      }
+
+      document.getElementById('welcomeGreeting').textContent = `Welcome, ${currentProfile.full_name}`;
+      document.getElementById('userEmailDisplay').textContent = `${currentProfile.email} · NIT Kurukshetra`;
+      document.getElementById('userNavRole').textContent = currentProfile.role;
+
+      // 2. Load Student's Registrations
+      await loadMyRegistrations();
+      await loadMyInduction();
+    });
+
+    async function handleSignOut() {
+      await Electroreck.auth.signOut();
+      window.location.replace('login.html');
+    }
+
+    async function loadMyRegistrations() {
+      try {
+        myRegistrationsList = await Electroreck.registrations.getMyRegistrations();
+        const container = document.getElementById('passesContainer');
+
+        if (myRegistrationsList.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state" style="grid-column: 1 / -1;">
+              <svg style="margin: 0 auto 0.75rem; color: var(--text-muted);" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.25rem;">No Event Registrations Yet</h3>
+              <p style="font-size: 0.85rem; margin-bottom: 1.25rem;">You have not registered for any Techspardha 2026 events yet.</p>
+              <a href="register.html" class="btn btn-primary" style="text-decoration: none;">Explore & Register Now</a>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = myRegistrationsList.map(reg => {
+          const ev = reg.event || {};
+          const statusClass = `status-${reg.status.toLowerCase()}`;
+          return `
+            <div class="pass-card">
+              <div>
+                <div class="pass-card-top">
+                  <span class="pass-id-chip">${reg.pass_id}</span>
+                  <span class="status-tag ${statusClass}">${reg.status}</span>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 0.35rem;">
+                  ${ev.title || 'Event'}
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem;">
+                  ${ev.tagline || 'Techspardha 2026'}
+                </p>
+
+                <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+                  <div>📍 <strong>Venue:</strong> ${ev.venue || 'TBA'}</div>
+                  <div>🗓️ <strong>Date:</strong> ${ev.event_date ? new Date(ev.event_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'TBA'}</div>
+                  ${reg.team_name ? `<div>👥 <strong>Team:</strong> ${reg.team_name}</div>` : ''}
+                </div>
+              </div>
+
+              <button type="button" class="btn btn-outline" style="width: 100%; font-size: 0.85rem;" onclick="openPassModal('${reg.id}')">
+                View & Print Pass
+              </button>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error('Error fetching registrations:', err);
+      }
+    }
+
+    async function loadMyInduction() {
+      try {
+        myInductionApp = await Electroreck.induction.getMyApplication();
+        const container = document.getElementById('inductionContainer');
+
+        if (!myInductionApp) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <h3 style="font-size: 1.1rem; color: #fff; margin-bottom: 0.25rem;">Induction Application Not Submitted</h3>
+              <p style="font-size: 0.85rem; margin-bottom: 1.25rem;">
+                Interested in becoming an active core member of Electroreck? Applications for the 2026 tenure are open.
+              </p>
+              <a href="induction.html" class="btn btn-outline" style="text-decoration: none;">Apply for Society Induction</a>
+            </div>
+          `;
+          return;
+        }
+
+        const statusClass = `status-${myInductionApp.status.toLowerCase()}`;
+        container.innerHTML = `
+          <div style="background: var(--card-bg, #0b1120); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <span class="event-cat-badge bg-primary-10" style="color: var(--primary);">Induction 2026</span>
+                <span class="status-tag ${statusClass}">Status: ${myInductionApp.status}</span>
+              </div>
+              <h3 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 0.35rem;">
+                Preferred Wing: ${myInductionApp.wing ? myInductionApp.wing.name : 'Core Wing'}
+              </h3>
+              <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 650px;">
+                "<em>${myInductionApp.reason_for_joining}</em>"
+              </p>
+            </div>
+            <div>
+              <span style="font-size: 0.75rem; color: var(--text-muted); display: block; text-align: right;">Applied On</span>
+              <strong style="color: #fff; font-size: 0.85rem;">${new Date(myInductionApp.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        console.error('Error fetching induction application:', err);
+      }
+    }
+
+    function openPassModal(regId) {
+      const reg = myRegistrationsList.find(r => r.id === regId);
+      if (!reg) return;
+
+      const ev = reg.event || {};
+      document.getElementById('modalPassId').textContent = reg.pass_id;
+      document.getElementById('modalPassStatus').textContent = reg.status;
+      document.getElementById('modalPassStatus').className = `status-tag status-${reg.status.toLowerCase()}`;
+      document.getElementById('modalEventTitle').textContent = ev.title || 'Event Pass';
+      document.getElementById('modalEventVenue').textContent = `${ev.venue || 'TBA'} · ${ev.event_date ? new Date(ev.event_date).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : ''}`;
+      document.getElementById('modalParticipantName').textContent = reg.full_name;
+      document.getElementById('modalRollNo').textContent = reg.roll_number;
+      document.getElementById('modalDept').textContent = `${reg.department} (${reg.year_of_study})`;
+      document.getElementById('modalPhone').textContent = reg.phone;
+
+      const teamBox = document.getElementById('modalTeamBox');
+      if (reg.team_name) {
+        teamBox.style.display = 'block';
+        document.getElementById('modalTeamName').textContent = `Team: ${reg.team_name}`;
+        if (reg.team_members && reg.team_members.length > 0) {
+          document.getElementById('modalTeamMembers').textContent = 'Members: ' + reg.team_members.map(m => `${m.name} (${m.roll_number})`).join(', ');
+        } else {
+          document.getElementById('modalTeamMembers').textContent = '';
+        }
+      } else {
+        teamBox.style.display = 'none';
+      }
+
+      document.getElementById('passModal').classList.add('open');
+    }
+
+    function closePassModal() {
+      document.getElementById('passModal').classList.remove('open');
+    }
+  </script>
+</body>
+</html>
