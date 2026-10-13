@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electroreck — Electrical Engineering Society, NIT KKR</title>
+  <meta name="description" content="Electroreck is the official electrical engineering society of NIT Kurukshetra. Register for Techspardha events, workshops, and society induction.">
+  <meta name="keywords" content="Electroreck, NIT Kurukshetra, Techspardha 2026, Electrical Engineering Society, Electrica, Advanza, Digispark, Vidhwaan">
+  <meta property="og:title" content="Electroreck — Electrical Engineering Society, NIT KKR">
+  <meta property="og:description" content="Official electrical engineering society of NIT Kurukshetra. Innovating, designing, and igniting the spark.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300d4ff'><path d='M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z'/></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ==================== NAVIGATION BAR ==================== -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="#" class="brand-link">
+        <div class="brand-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z"></path>
+          </svg>
+        </div>
+        <span class="text-foreground">Electroreck</span>
+      </a>
+
+      <!-- Desktop Links -->
+      <div class="nav-links">
+        <a href="#hero" class="nav-link active">Home</a>
+        <a href="#events" class="nav-link">Events</a>
+        <a href="#workshops" class="nav-link">Workshops</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#gallery" class="nav-link">Gallery</a>
+        <a href="#team" class="nav-link">Team</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </div>
+
+      <!-- Actions: Theme Toggle & Join Society -->
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle dark/light theme" title="Toggle Theme">
+          <svg id="themeIconSun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="m4.93 4.93 1.41 1.41"></path>
+            <path d="m17.66 17.66 1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="m6.34 17.66-1.41 1.41"></path>
+            <path d="m19.07 4.93-1.41 1.41"></path>
+          </svg>
+          <svg id="themeIconMoon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+          </svg>
+        </button>
+
+        <button class="btn btn-primary glow-primary-sm" id="navJoinBtn" onclick="openInductionModal()">
+          Join Society
+        </button>
+
+        <!-- Mobile Menu Hamburger Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open mobile navigation">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" x2="20" y1="6" y2="6"></line>
+            <line x1="4" x2="20" y1="12" y2="12"></line>
+            <line x1="4" x2="20" y1="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <a href="#hero" class="nav-link" onclick="closeMobileMenu()">Home</a>
+    <a href="#events" class="nav-link" onclick="closeMobileMenu()">Events</a>
+    <a href="#workshops" class="nav-link" onclick="closeMobileMenu()">Workshops</a>
+    <a href="#about" class="nav-link" onclick="closeMobileMenu()">About</a>
+    <a href="#gallery" class="nav-link" onclick="closeMobileMenu()">Gallery</a>
+    <a href="#team" class="nav-link" onclick="closeMobileMenu()">Team</a>
+    <a href="#contact" class="nav-link" onclick="closeMobileMenu()">Contact</a>
+    <div style="padding-top: 0.75rem; border-top: 1px solid var(--border-color); margin-top: 0.5rem;">
+      <button class="btn btn-primary" style="width: 100%;" onclick="openInductionModal(); closeMobileMenu();">
+        Join Society
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== HERO SECTION ==================== -->
+  <header class="hero-section circuit-bg-dense" id="hero">
+    <canvas id="circuit-canvas"></canvas>
+    <div class="hero-glow-aura"></div>
+
+    <div class="container hero-content">
+      <div class="hero-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z"></path>
+        </svg>
+        Techspardha 2026 — Registrations Open
+      </div>
+
+      <h1 class="hero-title">
+        <span class="gradient-text text-glow">ELECTRO</span><span>RECK</span>
+      </h1>
+
+      <p class="hero-tagline">Igniting the Spark in Electrical Engineering</p>
+      <p class="hero-subtag">NIT Kurukshetra · Electrical Engineering Society</p>
+
+      <div class="hero-cta-group">
+        <a href="#events" class="btn btn-primary">
+          Explore Events
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        </a>
+        <button class="btn btn-outline" onclick="openInductionModal()">
+          Join the Society
+        </button>
+      </div>
+
+      <a href="#events" class="hero-scroll-indicator" aria-label="Scroll down">
+        <span>Scroll</span>
+        <svg class="animate-bounce" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m6 9 6 6 6-6"></path>
+        </svg>
+      </a>
+    </div>
+
+    <div class="hero-bottom-fade"></div>
+  </header>
+
+  <!-- ==================== STATS BAR ==================== -->
+  <section class="stats-section" id="stats">
+    <div class="container">
+      <div class="stats-grid">
+        <!-- Stat 1: Active Members -->
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="color: var(--primary);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="stat-number tabular-nums" style="color: var(--primary);">
+              <span class="counter-num" data-target="150">0</span>+
+            </p>
+            <p class="stat-label">Active Members</p>
+          </div>
+        </div>
+
+        <!-- Stat 2: Events Conducted -->
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="color: var(--electrica);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="stat-number tabular-nums" style="color: var(--electrica);">
+              <span class="counter-num" data-target="25">0</span>+
+            </p>
+            <p class="stat-label">Events Conducted</p>
+          </div>
+        </div>
+
+        <!-- Stat 3: Workshop Sessions -->
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="color: var(--digispark);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v16"></path>
+              <path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="stat-number tabular-nums" style="color: var(--digispark);">
+              <span class="counter-num" data-target="40">0</span>+
+            </p>
+            <p class="stat-label">Workshop Sessions</p>
+          </div>
+        </div>
+
+        <!-- Stat 4: Total Participants -->
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="color: var(--vidhwaan);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2"></path>
+              <path d="M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2"></path>
+              <path d="M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3"></path>
+              <path d="M4 22h16"></path>
+              <path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"></path>
+              <path d="M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="stat-number tabular-nums" style="color: var(--vidhwaan);">
+              <span class="counter-num" data-target="10000">0</span>+
+            </p>
+            <p class="stat-label">Total Participants</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== EVENTS SECTION (#events) ==================== -->
+  <section class="events-section" id="events">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Techspardha 2026</span>
+        <h2 class="section-title">Four Events. One Fest.</h2>
+        <p class="section-subtitle">
+          From digital design to power systems research — Electroreck brings the best of electrical engineering to life.
+        </p>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="events-filter-bar">
+        <button class="filter-btn active" data-category="all" onclick="filterEvents('all')">All Events</button>
+        <button class="filter-btn" data-category="cultural" onclick="filterEvents('cultural')">Cultural</button>
+        <button class="filter-btn" data-category="technical" onclick="filterEvents('technical')">Technical</button>
+        <button class="filter-btn" data-category="research" onclick="filterEvents('research')">Research</button>
+      </div>
+
+      <!-- Events Grid -->
+      <div class="events-grid">
+
+        <!-- EVENT 1: ELECTRICA -->
+        <article class="event-card event-electrica" data-category="cultural" id="card-electrica">
+          <div class="event-card-stripe bg-electrica"></div>
+          <div class="event-card-body">
+            <div class="event-header">
+              <div>
+                <span class="event-cat-badge bg-electrica-10">Cultural</span>
+                <h3 class="event-title text-electrica">Electrica</h3>
+                <p class="event-tagline">Where circuits meet creativity</p>
+              </div>
+              <span class="badge-status badge-open">
+                <span class="pulse-dot" style="background-color: var(--digispark);"></span>
+                Registration Open
+              </span>
+            </div>
+
+            <p class="event-desc">
+              Electrica is the cultural flagship of Electroreck — a high-energy online quiz and talent showcase that tests your electrical engineering knowledge while celebrating creativity. From rapid-fire circuit theory rounds to technical art challenges, Electrica is where left-brain precision meets right-brain expression.
+            </p>
+
+            <div class="event-meta-list">
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>Lecture Hall Complex, NIT Kurukshetra</span>
+              </div>
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+                <span>Deadline: 07 Nov 2026</span>
+              </div>
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>Team: 1–2 members</span>
+              </div>
+              <div class="event-meta-item" style="justify-content: space-between;">
+                <span style="color: var(--electrica); font-weight: 600;">45 / 50</span>
+                <span>Seats filled (90%)</span>
+              </div>
+            </div>
+
+            <div class="event-progress-wrap">
+              <div class="event-progress-bar">
+                <div class="event-progress-fill" style="width: 90%; background-color: var(--electrica);"></div>
+              </div>
+            </div>
+
+            <div class="event-actions">
+              <button class="btn btn-outline" style="border-color: var(--electrica); color: var(--electrica);" onclick="openEventDetails('electrica')">
+                View Details
+              </button>
+              <button class="btn" style="background-color: var(--electrica); color: #060913;" onclick="openEventRegister('electrica')">
+                Register
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- EVENT 2: ADVANZA -->
+        <article class="event-card event-advanza" data-category="technical" id="card-advanza">
+          <div class="event-card-stripe bg-advanza"></div>
+          <div class="event-card-body">
+            <div class="event-header">
+              <div>
+                <span class="event-cat-badge bg-advanza-10">Technical</span>
+                <h3 class="event-title text-advanza">Advanza</h3>
+                <p class="event-tagline">Engineer the future, advertise the value</p>
+              </div>
+              <span class="badge-status badge-open">
+                <span class="pulse-dot" style="background-color: var(--digispark);"></span>
+                Registration Open
+              </span>
+            </div>
+
+            <p class="event-desc">
+              Advanza challenges participants to combine deep technical knowledge with the art of communication. Teams tackle real-world circuit design and power systems problems, then present their solutions with clarity and impact. It's the intersection of engineering excellence and professional persuasion.
+            </p>
+
+            <div class="event-meta-list">
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>Seminar Hall, Electrical Block, NIT KKR</span>
+              </div>
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+                <span>Deadline: 08 Nov 2026</span>
+              </div>
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>Team: 2–4 members</span>
+              </div>
+              <div class="event-meta-item" style="justify-content: space-between;">
+                <span style="color: var(--advanza); font-weight: 600;">52 / 70</span>
+                <span>Seats filled (74%)</span>
+              </div>
+            </div>
+
+            <div class="event-progress-wrap">
+              <div class="event-progress-bar">
+                <div class="event-progress-fill" style="width: 74%; background-color: var(--advanza);"></div>
+              </div>
+            </div>
+
+            <div class="event-actions">
+              <button class="btn btn-outline" style="border-color: var(--advanza); color: var(--advanza);" onclick="openEventDetails('advanza')">
+                View Details
+              </button>
+              <button class="btn" style="background-color: var(--advanza); color: #060913;" onclick="openEventRegister('advanza')">
+                Register
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- EVENT 3: DIGISPARK -->
+        <article class="event-card event-digispark" data-category="technical" id="card-digispark">
+          <div class="event-card-stripe bg-digispark"></div>
+          <div class="event-card-body">
+            <div class="event-header">
+              <div>
+                <span class="event-cat-badge bg-digispark-10">Technical</span>
+                <h3 class="event-title text-digispark">Digispark</h3>
+                <p class="event-tagline">Logic meets innovation</p>
+              </div>
+              <span class="badge-status badge-open">
+                <span class="pulse-dot" style="background-color: var(--digispark);"></span>
+                Registration Open
+              </span>
+            </div>
+
+            <p class="event-desc">
+              Digispark is the digital engineering battleground of Techspardha. Participants push the boundaries of logic design, FPGA programming, microcontroller interfacing, and digital signal processing. From designing combinational circuits to implementing real-time DSP algorithms, Digispark is where digital innovation ignites.
+            </p>
+
+            <div class="event-meta-list">
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>Digital Systems Lab, Electrical Block, NIT KKR</span>
+              </div>
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+                <span>Deadline: 09 Nov 2026</span>
+              </div>
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>Team: 1–3 members</span>
+              </div>
+              <div class="event-meta-item" style="justify-content: space-between;">
+                <span style="color: var(--digispark); font-weight: 600;">38 / 60</span>
+                <span>Seats filled (63.3%)</span>
+              </div>
+            </div>
+
+            <div class="event-progress-wrap">
+              <div class="event-progress-bar">
+                <div class="event-progress-fill" style="width: 63.3%; background-color: var(--digispark);"></div>
+              </div>
+            </div>
+
+            <div class="event-actions">
+              <button class="btn btn-outline" style="border-color: var(--digispark); color: var(--digispark);" onclick="openEventDetails('digispark')">
+                View Details
+              </button>
+              <button class="btn" style="background-color: var(--digispark); color: #060913;" onclick="openEventRegister('digispark')">
+                Register
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <!-- EVENT 4: VIDHWAAN -->
+        <article class="event-card event-vidhwaan" data-category="research" id="card-vidhwaan">
+          <div class="event-card-stripe bg-vidhwaan"></div>
+          <div class="event-card-body">
+            <div class="event-header">
+              <div>
+                <span class="event-cat-badge bg-vidhwaan-10">Research</span>
+                <h3 class="event-title text-vidhwaan">Vidhwaan</h3>
+                <p class="event-tagline">Design the national power grid</p>
+              </div>
+              <span class="badge-status badge-coming-soon">
+                Coming Soon
+              </span>
+            </div>
+
+            <p class="event-desc">
+              Vidhwaan is the flagship research and presentation event of Electroreck. Participants design a complete National Power System — covering generation, transmission, and distribution. This is not a classroom exercise; it is a rigorous engineering challenge judged by industry professionals and faculty.
+            </p>
+
+            <div class="event-meta-list">
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>Conference Hall, Admin Block, NIT KKR</span>
+              </div>
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+                <span>Deadline: 05 Nov 2026</span>
+              </div>
+              <div class="event-meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>Team: 3–5 members</span>
+              </div>
+              <div class="event-meta-item" style="justify-content: space-between;">
+                <span style="color: var(--vidhwaan); font-weight: 600;">0 / 40</span>
+                <span>Seats filled (0%)</span>
+              </div>
+            </div>
+
+            <div class="event-progress-wrap">
+              <div class="event-progress-bar">
+                <div class="event-progress-fill" style="width: 0%; background-color: var(--vidhwaan);"></div>
+              </div>
+            </div>
+
+            <div class="event-actions">
+              <button class="btn btn-outline" style="border-color: var(--vidhwaan); color: var(--vidhwaan); width: 100%;" onclick="openEventDetails('vidhwaan')">
+                View Details
+              </button>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== COUNTDOWN TIMER SECTION ==================== -->
+  <section class="countdown-section" id="countdown">
+    <div class="container text-center">
+      <div style="margin-bottom: 2rem;">
+        <span class="section-badge" style="background: rgba(var(--primary-rgb), 0.15);">Countdown to Kickoff</span>
+        <h3 class="font-display" style="font-size: 2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">
+          Techspardha 2026 Launches In
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+          Get ready for northern India's premier technical extravaganza at NIT Kurukshetra
+        </p>
+      </div>
+
+      <div class="countdown-box-wrap" id="countdownBox">
+        <div class="countdown-unit-card">
+          <span class="countdown-digit" id="cdDays">00</span>
+          <span class="countdown-label">Days</span>
+        </div>
+        <div class="countdown-unit-card">
+          <span class="countdown-digit" id="cdHours">00</span>
+          <span class="countdown-label">Hours</span>
+        </div>
+        <div class="countdown-unit-card">
+          <span class="countdown-digit" id="cdMinutes">00</span>
+          <span class="countdown-label">Minutes</span>
+        </div>
+        <div class="countdown-unit-card">
+          <span class="countdown-digit" id="cdSeconds">00</span>
+          <span class="countdown-label">Seconds</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== ABOUT SECTION (#about) ==================== -->
+  <section class="about-section circuit-bg" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-text">
+          <span class="section-badge">About Electroreck</span>
+          <h2 class="section-title" style="text-align: left; margin-bottom: 1.5rem;">
+            Where Engineers<br>
+            <span class="gradient-text">Make Wonders Happen</span>
+          </h2>
+
+          <p>
+            Electroreck is the official electrical engineering society of NIT Kurukshetra — an aggregation of like-minded engineers connected through a shared vision of technical excellence and innovation.
+          </p>
+          <p>
+            As a society, we proudly conduct Techspardha — the annual techno-cultural fest of NIT KKR at the national level, attracting a footfall of over 10,000 participants every year.
+          </p>
+          <p>
+            Under the guidance of our Faculty In-Charge <strong style="color: var(--text-main);">Dr. Sandeep Kakran</strong>, our members conduct technical workshops, research seminars, and hands-on sessions that prepare engineers to be future-ready.
+          </p>
+
+          <div class="about-tags">
+            <span class="about-tag">Power Systems</span>
+            <span class="about-tag">Digital Electronics</span>
+            <span class="about-tag">Control Systems</span>
+            <span class="about-tag">Signal Processing</span>
+            <span class="about-tag">Embedded Systems</span>
+          </div>
+        </div>
+
+        <div class="about-features-grid">
+          <!-- Feature 1 -->
+          <div class="about-feature-card">
+            <div class="about-feature-icon" style="color: var(--primary);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z"></path>
+              </svg>
+            </div>
+            <h3 class="about-feature-title">Technical Excellence</h3>
+            <p class="about-feature-desc">Rigorous events that test and build real engineering skills</p>
+          </div>
+
+          <!-- Feature 2 -->
+          <div class="about-feature-card">
+            <div class="about-feature-icon" style="color: var(--advanza);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <h3 class="about-feature-title">Community First</h3>
+            <p class="about-feature-desc">A network of engineers supporting each other through college and beyond</p>
+          </div>
+
+          <!-- Feature 3 -->
+          <div class="about-feature-card">
+            <div class="about-feature-icon" style="color: var(--vidhwaan);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="6"></circle>
+                <path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path>
+              </svg>
+            </div>
+            <h3 class="about-feature-title">National Recognition</h3>
+            <p class="about-feature-desc">Techspardha draws participants from across India every year</p>
+          </div>
+
+          <!-- Feature 4 -->
+          <div class="about-feature-card">
+            <div class="about-feature-icon" style="color: var(--digispark);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v16"></path>
+                <path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z"></path>
+              </svg>
+            </div>
+            <h3 class="about-feature-title">Learning Culture</h3>
+            <p class="about-feature-desc">Workshops, seminars, and projects that go beyond the classroom</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== WORKSHOPS SECTION (#workshops) ==================== -->
+  <section class="workshops-section" id="workshops">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Learn More</span>
+        <h2 class="section-title">Upcoming Workshops</h2>
+        <p class="section-subtitle">
+          Hands-on sessions led by faculty and industry experts
+        </p>
+      </div>
+
+      <div class="workshops-grid">
+        <!-- Workshop 1 -->
+        <div class="workshop-card">
+          <div class="workshop-top">
+            <div class="workshop-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 2v3"></path>
+                <path d="M16 2v3"></path>
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                <path d="M3 9h18"></path>
+              </svg>
+            </div>
+            <span class="workshop-badge">Workshop</span>
+          </div>
+
+          <h3 class="workshop-title">FPGA Fundamentals with Xilinx Vivado</h3>
+          <p class="workshop-desc">
+            Hands-on workshop covering VHDL basics, synthesis, and implementation on Artix-7 FPGA boards.
+          </p>
+
+          <div class="workshop-info-list">
+            <div class="workshop-info-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+              <span>12 Nov 2026, 10:00 am</span>
+            </div>
+            <div class="workshop-info-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>Digital Systems Lab, EE Block</span>
+            </div>
+            <div class="workshop-info-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>Dr. Manish Kumar, Associate Professor</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workshop 2 -->
+        <div class="workshop-card">
+          <div class="workshop-top">
+            <div class="workshop-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 2v3"></path>
+                <path d="M16 2v3"></path>
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                <path d="M3 9h18"></path>
+              </svg>
+            </div>
+            <span class="workshop-badge">Workshop</span>
+          </div>
+
+          <h3 class="workshop-title">Power Electronics Circuit Design with LTspice</h3>
+          <p class="workshop-desc">
+            From buck-boost converters to H-bridge designs — simulate and validate before you build.
+          </p>
+
+          <div class="workshop-info-list">
+            <div class="workshop-info-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+              <span>11 Nov 2026, 02:30 pm</span>
+            </div>
+            <div class="workshop-info-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>Seminar Hall, EE Block</span>
+            </div>
+            <div class="workshop-info-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>Prof. Rajeev Sharma, IIT Delhi (Guest)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Workshop 3 -->
+        <div class="workshop-card">
+          <div class="workshop-top">
+            <div class="workshop-icon-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 2v3"></path>
+                <path d="M16 2v3"></path>
+                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                <path d="M3 9h18"></path>
+              </svg>
+            </div>
+            <span class="workshop-badge">Workshop</span>
+          </div>
+
+          <h3 class="workshop-title">Introduction to Machine Learning for Power Systems</h3>
+          <p class="workshop-desc">
+            ML applications in smart grid fault detection, state estimation, and modern load forecasting.
+          </p>
+
+          <div class="workshop-info-list">
+            <div class="workshop-info-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+              <span>13 Nov 2026, 09:00 am</span>
+            </div>
+            <div class="workshop-info-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>Lecture Hall 3, Main Building</span>
+            </div>
+            <div class="workshop-info-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              <span>Dr. Priya Nair, CPRI Bangalore (Guest)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== GALLERY SECTION (#gallery) ==================== -->
+  <section class="gallery-section circuit-bg" id="gallery">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Life At Electroreck</span>
+        <h2 class="section-title">Society Gallery & Fest Highlights</h2>
+        <p class="section-subtitle">
+          Moments from Techspardha, hands-on lab experiments, and community achievements.
+        </p>
+      </div>
+
+      <div class="gallery-grid">
+        <div class="gallery-card" onclick="openLightbox('assets/fest-hero.jpg', 'Techspardha Arena — Annual Techno-Cultural Festival')">
+          <img src="assets/fest-hero.jpg" alt="Techspardha Fest Arena" class="gallery-img" loading="lazy">
+          <div class="gallery-overlay">
+            <span class="gallery-badge">Techspardha Festival</span>
+            <h4 class="gallery-title">Neon Pulse Techno Arena</h4>
+            <p class="gallery-subtitle">Electrifying crowds and national technical competitions</p>
+          </div>
+        </div>
+
+        <div class="gallery-card" onclick="openLightbox('assets/circuit-lab.jpg', 'Digital Systems & Embedded Hardware Testing Workbench')">
+          <img src="assets/circuit-lab.jpg" alt="Circuit Lab Testing Workbench" class="gallery-img" loading="lazy">
+          <div class="gallery-overlay">
+            <span class="gallery-badge">Laboratory & Hardware</span>
+            <h4 class="gallery-title">Embedded Systems Workbench</h4>
+            <p class="gallery-subtitle">Hands-on FPGA verification and oscilloscope testing</p>
+          </div>
+        </div>
+
+        <div class="gallery-card" onclick="openLightbox('assets/smart-grid.jpg', 'Vidhwaan Grid Telemetry & Smart Energy Simulation Center')">
+          <img src="assets/smart-grid.jpg" alt="National Power Grid Telemetry" class="gallery-img" loading="lazy">
+          <div class="gallery-overlay">
+            <span class="gallery-badge">Vidhwaan Research</span>
+            <h4 class="gallery-title">Smart Grid Simulation Center</h4>
+            <p class="gallery-subtitle">High-voltage transmission and power grid modeling</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== OFFICIALS / LEADERSHIP SECTION (#team) ==================== -->
+  <section class="team-section" id="team">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Leadership</span>
+        <h2 class="section-title">Society Officials</h2>
+        <p class="section-subtitle">The team leading Electroreck into Techspardha 2026</p>
+      </div>
+
+      <!-- Top: Faculty In-Charge -->
+      <div class="team-faculty-wrap">
+        <div class="faculty-card">
+          <div class="faculty-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
+            </svg>
+          </div>
+          <h3 class="faculty-name">Dr. Sandeep Kakran</h3>
+          <p class="faculty-role">Faculty In-Charge</p>
+          <p class="faculty-dept">Department of Electrical Engineering, NIT KKR</p>
+        </div>
+      </div>
+
+      <!-- Grid of Student Coordinators -->
+      <div class="officials-grid">
+        <!-- 1. Karan Malhotra -->
+        <div class="official-card">
+          <div class="official-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <h4 class="official-name">Karan Malhotra</h4>
+          <p class="official-role">Secretary</p>
+          <p class="official-reports">Reports to: Dr. Sandeep Kakran</p>
+        </div>
+
+        <!-- 2. Ritika Sharma -->
+        <div class="official-card">
+          <div class="official-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <h4 class="official-name">Ritika Sharma</h4>
+          <p class="official-role">Vice Secretary</p>
+          <p class="official-reports">Reports to: Karan Malhotra</p>
+        </div>
+
+        <!-- 3. Aman Joshi -->
+        <div class="official-card">
+          <div class="official-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <h4 class="official-name">Aman Joshi</h4>
+          <p class="official-role">Joint Secretary — Technical</p>
+          <p class="official-reports">Reports to: Karan Malhotra</p>
+        </div>
+
+        <!-- 4. Priya Bansal -->
+        <div class="official-card">
+          <div class="official-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <h4 class="official-name">Priya Bansal</h4>
+          <p class="official-role">Joint Secretary — Cultural</p>
+          <p class="official-reports">Reports to: Karan Malhotra</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CONTACT SECTION (#contact) ==================== -->
+  <section class="contact-section" id="contact">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Get In Touch</span>
+        <h2 class="section-title">Contact Us</h2>
+        <p class="section-subtitle">
+          Have a question, proposal, or want to collaborate? We would love to hear from you.
+        </p>
+      </div>
+
+      <div class="contact-grid">
+        <!-- Contact Form -->
+        <div class="contact-card-form">
+          <form id="contactForm" onsubmit="handleContactSubmit(event)">
+            <div class="form-row form-group">
+              <div>
+                <label class="form-label" for="contactName">Full Name</label>
+                <input class="form-input" type="text" id="contactName" name="name" placeholder="Arjun Sharma" required>
+              </div>
+              <div>
+                <label class="form-label" for="contactEmail">Email Address</label>
+                <input class="form-input" type="email" id="contactEmail" name="email" placeholder="you@example.com" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contactSubject">Subject</label>
+              <input class="form-input" type="text" id="contactSubject" name="subject" placeholder="Sponsorship / Collaboration / Query" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contactMessage">Message</label>
+              <textarea class="form-input" id="contactMessage" name="message" rows="5" placeholder="Tell us what you have in mind..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path>
+                <path d="m21.854 2.147-10.94 10.939"></path>
+              </svg>
+              Send Message
+            </button>
+          </form>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="contact-info-wrap">
+          <div class="contact-item-list">
+            <div class="contact-item">
+              <div class="contact-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path>
+                  <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                </svg>
+              </div>
+              <div>
+                <p class="contact-item-title">Email</p>
+                <p class="contact-item-val">
+                  <a href="mailto:registrar@nitkkr.ac.in">registrar@nitkkr.ac.in</a>
+                </p>
+              </div>
+            </div>
+
+            <div class="contact-item">
+              <div class="contact-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="contact-item-title">Phone</p>
+                <p class="contact-item-val">
+                  <a href="tel:+01744233208">+01744-233208</a>
+                </p>
+              </div>
+            </div>
+
+            <div class="contact-item">
+              <div class="contact-icon-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+              </div>
+              <div>
+                <p class="contact-item-title">Address</p>
+                <p class="contact-item-val">
+                  National Institute of Technology Kurukshetra<br>
+                  Thanesar, Haryana 136119, India
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact-social-wrap">
+            <p class="social-title">Follow Electroreck</p>
+            <div class="social-links">
+              <a href="https://linkedin.com/company/erecknitkkr" target="_blank" rel="noopener noreferrer" class="social-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                  <rect x="2" y="9" width="4" height="12"></rect>
+                  <circle cx="4" cy="4" r="2"></circle>
+                </svg>
+                LinkedIn
+              </a>
+              <a href="https://instagram.com/electroreck_nitkkr" target="_blank" rel="noopener noreferrer" class="social-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+                Instagram
+              </a>
+              <a href="https://twitter.com/electroreck" target="_blank" rel="noopener noreferrer" class="social-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                </svg>
+                Twitter / X
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer circuit-bg" id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <!-- Brand Summary -->
+        <div>
+          <a href="#" class="brand-link" style="margin-bottom: 1rem;">
+            <div class="brand-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z"></path>
+              </svg>
+            </div>
+            <span>Electroreck</span>
+          </a>
+          <p style="font-size: 0.875rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem;">
+            The official electrical engineering society of NIT Kurukshetra. Igniting the spark in every engineer.
+          </p>
+          <div class="social-links">
+            <a href="https://linkedin.com/company/erecknitkkr" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="LinkedIn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+            </a>
+            <a href="https://instagram.com/electroreck_nitkkr" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Instagram">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            </a>
+            <a href="https://twitter.com/electroreck" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Twitter">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h4 class="footer-col-title">Quick Links</h4>
+          <ul class="footer-link-list">
+            <li><a href="#hero" class="footer-link">Home</a></li>
+            <li><a href="#events" class="footer-link">Events</a></li>
+            <li><a href="#workshops" class="footer-link">Workshops</a></li>
+            <li><a href="#about" class="footer-link">About</a></li>
+            <li><a href="#gallery" class="footer-link">Gallery</a></li>
+            <li><a href="#team" class="footer-link">Team</a></li>
+            <li><a href="#contact" class="footer-link">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Events -->
+        <div>
+          <h4 class="footer-col-title">Events</h4>
+          <ul class="footer-link-list">
+            <li><a href="javascript:void(0)" onclick="openEventDetails('electrica')" class="footer-link" style="color: var(--electrica);">Electrica</a></li>
+            <li><a href="javascript:void(0)" onclick="openEventDetails('advanza')" class="footer-link" style="color: var(--advanza);">Advanza</a></li>
+            <li><a href="javascript:void(0)" onclick="openEventDetails('digispark')" class="footer-link" style="color: var(--digispark);">Digispark</a></li>
+            <li><a href="javascript:void(0)" onclick="openEventDetails('vidhwaan')" class="footer-link" style="color: var(--vidhwaan);">Vidhwaan</a></li>
+            <li><a href="javascript:void(0)" onclick="openInductionModal()" class="footer-link" style="color: var(--primary);">Society Induction</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Info -->
+        <div>
+          <h4 class="footer-col-title">Contact</h4>
+          <ul class="footer-link-list">
+            <li style="display: flex; gap: 0.5rem; align-items: flex-start;">
+              <svg style="color: var(--primary); margin-top: 3px; flex-shrink: 0;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg>
+              <a href="mailto:registrar@nitkkr.ac.in" class="footer-link">registrar@nitkkr.ac.in</a>
+            </li>
+            <li style="display: flex; gap: 0.5rem; align-items: flex-start;">
+              <svg style="color: var(--primary); margin-top: 3px; flex-shrink: 0;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"></path></svg>
+              <a href="tel:+01744233208" class="footer-link">+01744-233208</a>
+            </li>
+            <li style="display: flex; gap: 0.5rem; align-items: flex-start;">
+              <svg style="color: var(--primary); margin-top: 3px; flex-shrink: 0;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span style="font-size: 0.875rem; color: var(--text-muted);">NIT Kurukshetra, Thanesar, Haryana 136119</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 Electroreck — Electrical Engineering Society, NIT Kurukshetra</p>
+        <p>National Institute of Technology Kurukshetra, Haryana 136119</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== EVENT DETAILS & REGISTRATION MODAL ==================== -->
+  <div class="modal-backdrop" id="eventModal" onclick="if(event.target === this) closeEventModal();">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span id="modalEventBadge" class="event-cat-badge">Category</span>
+          <h3 class="modal-title" id="modalEventTitle">Event Details</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeEventModal()" aria-label="Close dialog">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Modal Tabs -->
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+          <button class="btn btn-outline" id="modalTabOverviewBtn" style="flex: 1;" onclick="switchModalTab('overview')">Overview & Rules</button>
+          <button class="btn btn-primary" id="modalTabRegisterBtn" style="flex: 1;" onclick="switchModalTab('register')">Register Now</button>
+        </div>
+
+        <!-- Tab 1: Overview -->
+        <div id="modalTabOverview">
+          <p id="modalEventDesc" style="color: var(--text-muted); line-height: 1.7; margin-bottom: 1.5rem;"></p>
+          
+          <div style="background: var(--bg-card); padding: 1.25rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-main);">Competition Specifications</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.8125rem;">
+              <div><strong style="color: var(--text-main);">Venue:</strong> <span id="modalEventVenue" style="color: var(--text-muted);"></span></div>
+              <div><strong style="color: var(--text-main);">Deadline:</strong> <span id="modalEventDeadline" style="color: var(--text-muted);"></span></div>
+              <div><strong style="color: var(--text-main);">Team Size:</strong> <span id="modalEventTeam" style="color: var(--text-muted);"></span></div>
+              <div><strong style="color: var(--text-main);">Eligibility:</strong> <span style="color: var(--text-muted);">B.Tech / M.Tech All Branches</span></div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">Prizes & Recognition</h4>
+            <ul style="padding-left: 1.25rem; color: var(--text-muted); font-size: 0.875rem; line-height: 1.6;">
+              <li>Cash prizes worth up to ₹25,000 for top performing teams</li>
+              <li>Official certificates of excellence signed by NIT Kurukshetra faculty</li>
+              <li>Direct evaluation and mentorship by industry jury</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Tab 2: Register Form -->
+        <div id="modalTabRegister" style="display: none;">
+          <form id="eventRegisterForm" onsubmit="handleEventRegisterSubmit(event)">
+            <input type="hidden" id="regEventId" name="eventId" value="">
+            
+            <div class="form-group">
+              <label class="form-label" for="regTeamName">Team Name</label>
+              <input class="form-input" type="text" id="regTeamName" name="teamName" placeholder="e.g. Circuit Breakers" required>
+            </div>
+
+            <div class="form-row form-group">
+              <div>
+                <label class="form-label" for="regLeaderName">Team Leader Name</label>
+                <input class="form-input" type="text" id="regLeaderName" name="leaderName" placeholder="Full Name" required>
+              </div>
+              <div>
+                <label class="form-label" for="regLeaderEmail">Leader Email</label>
+                <input class="form-input" type="email" id="regLeaderEmail" name="leaderEmail" placeholder="student@nitkkr.ac.in" required>
+              </div>
+            </div>
+
+            <div class="form-row form-group">
+              <div>
+                <label class="form-label" for="regCollege">College / Institute</label>
+                <input class="form-input" type="text" id="regCollege" name="college" placeholder="NIT Kurukshetra" required>
+              </div>
+              <div>
+                <label class="form-label" for="regLeaderPhone">Contact Phone</label>
+                <input class="form-input" type="tel" id="regLeaderPhone" name="leaderPhone" placeholder="+91 98765 43210" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="regMembers">Team Member Names & Roll Nos</label>
+              <textarea class="form-input" id="regMembers" name="members" rows="3" placeholder="Member 1: Name (Roll No)&#10;Member 2: Name (Roll No)"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              Confirm & Submit Registration
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SOCIETY INDUCTION MODAL ==================== -->
+  <div class="modal-backdrop" id="inductionModal" onclick="if(event.target === this) closeInductionModal();">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <span class="event-cat-badge bg-primary-10" style="color: var(--primary); background: rgba(var(--primary-rgb), 0.1);">Recruitment 2026</span>
+          <h3 class="modal-title">Join Electroreck Society</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeInductionModal()" aria-label="Close dialog">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem; line-height: 1.6;">
+          Become a core member of the Department of Electrical Engineering society at NIT Kurukshetra. Collaborate on hardware design, organize Techspardha, manage sponsorships, and engineer next-generation solutions.
+        </p>
+
+        <form id="inductionForm" onsubmit="handleInductionSubmit(event)">
+          <div class="form-row form-group">
+            <div>
+              <label class="form-label" for="indName">Full Name</label>
+              <input class="form-input" type="text" id="indName" name="name" placeholder="Rohan Verma" required>
+            </div>
+            <div>
+              <label class="form-label" for="indRoll">Roll Number</label>
+              <input class="form-input" type="text" id="indRoll" name="roll" placeholder="1231XXXX" required>
+            </div>
+          </div>
+
+          <div class="form-row form-group">
+            <div>
+              <label class="form-label" for="indEmail">College Email</label>
+              <input class="form-input" type="email" id="indEmail" name="email" placeholder="rohan_1231XXXX@nitkkr.ac.in" required>
+            </div>
+            <div>
+              <label class="form-label" for="indPhone">WhatsApp Number</label>
+              <input class="form-input" type="tel" id="indPhone" name="phone" placeholder="+91 9XXXXXXXXX" required>
+            </div>
+          </div>
+
+          <div class="form-row form-group">
+            <div>
+              <label class="form-label" for="indYear">Year of Study</label>
+              <select class="form-input" id="indYear" name="year" required>
+                <option value="1st Year (B.Tech)">1st Year (B.Tech)</option>
+                <option value="2nd Year (B.Tech)">2nd Year (B.Tech)</option>
+                <option value="3rd Year (B.Tech)">3rd Year (B.Tech)</option>
+                <option value="Postgraduate (M.Tech/PhD)">Postgraduate (M.Tech/PhD)</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="indBranch">Branch / Department</label>
+              <input class="form-input" type="text" id="indBranch" name="branch" placeholder="Electrical Engineering" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="indDomain">Preferred Domain</label>
+            <select class="form-input" id="indDomain" name="domain" required>
+              <option value="Technical (Core Electrical & Circuit Design)">Technical (Core Electrical & Circuit Design)</option>
+              <option value="Digital Systems & Embedded / ML">Digital Systems & Embedded / ML</option>
+              <option value="Web & Software Operations">Web & Software Operations</option>
+              <option value="Events & Cultural Coordination">Events & Cultural Coordination</option>
+              <option value="Public Relations & Corporate Sponsorship">Public Relations & Corporate Sponsorship</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="indStatement">Why do you want to join Electroreck?</label>
+            <textarea class="form-input" id="indStatement" name="statement" rows="3" placeholder="Briefly describe your interests, technical projects, or what you hope to achieve with the society..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%;">
+            Submit Induction Application
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== LIGHTBOX VIEWER ==================== -->
+  <div class="lightbox-backdrop" id="lightboxModal" onclick="if(event.target === this) closeLightbox();">
+    <div class="lightbox-img-wrap">
+      <button class="modal-close-btn" style="position: absolute; top: -45px; right: 0;" onclick="closeLightbox()" aria-label="Close Lightbox">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+      <img src="" alt="Enlarged gallery view" class="lightbox-img" id="lightboxImage">
+      <p class="lightbox-caption" id="lightboxCaption"></p>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATIONS ==================== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- JavaScript Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
