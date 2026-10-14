@@ -1,6 +1,6 @@
 /**
  * ELECTRORECK — OFFICIAL ELECTRICAL ENGINEERING SOCIETY, NIT KURUKSHETRA
- * Frontend Interactive Logic & Micro-Animations
+ * Frontend Interactive Logic & State Management
  */
 
 // --- Event Data Store ---
@@ -9,7 +9,7 @@ const EVENT_DATA = {
     title: 'Electrica',
     category: 'Cultural',
     categoryClass: 'bg-electrica-10 text-electrica',
-    color: '#f59e0b',
+    color: '#eaa943',
     tagline: 'Where circuits meet creativity',
     venue: 'Lecture Hall Complex, NIT Kurukshetra',
     deadline: '07 Nov 2026',
@@ -21,7 +21,7 @@ const EVENT_DATA = {
     title: 'Advanza',
     category: 'Technical',
     categoryClass: 'bg-advanza-10 text-advanza',
-    color: '#06b6d4',
+    color: '#f2c266',
     tagline: 'Engineer the future, advertise the value',
     venue: 'Seminar Hall, Electrical Engineering Block, NIT KKR',
     deadline: '08 Nov 2026',
@@ -33,7 +33,7 @@ const EVENT_DATA = {
     title: 'Digispark',
     category: 'Technical',
     categoryClass: 'bg-digispark-10 text-digispark',
-    color: '#10b981',
+    color: '#e09b30',
     tagline: 'Logic meets innovation',
     venue: 'Digital Systems Lab, Electrical Block, NIT KKR',
     deadline: '09 Nov 2026',
@@ -45,7 +45,7 @@ const EVENT_DATA = {
     title: 'Vidhwaan',
     category: 'Research',
     categoryClass: 'bg-vidhwaan-10 text-vidhwaan',
-    color: '#8b5cf6',
+    color: '#c9892f',
     tagline: 'Design the national power grid',
     venue: 'Conference Hall, Admin Block, NIT Kurukshetra',
     deadline: '05 Nov 2026',
@@ -141,10 +141,13 @@ function initTheme() {
       iconSun.style.display = 'none';
       iconMoon.style.display = 'block';
     }
+    if (typeof window.renderCircuitCanvas === 'function') {
+      window.renderCircuitCanvas();
+    }
   }
 }
 
-// --- Interactive Electric Circuit Canvas (Hero Background) ---
+// --- Static Electric Circuit Canvas (Hero Background - No Animations) ---
 function initCircuitCanvas() {
   const canvas = document.getElementById('circuit-canvas');
   if (!canvas) return;
@@ -152,28 +155,26 @@ function initCircuitCanvas() {
 
   let width, height;
   let nodes = [];
-  let pulses = [];
 
   function resize() {
     width = canvas.width = window.innerWidth;
     height = canvas.height = canvas.parentElement.offsetHeight;
     createCircuitGrid();
+    drawStaticCircuit();
   }
 
   function createCircuitGrid() {
     nodes = [];
-    pulses = [];
-    const spacing = 90;
+    const spacing = 95;
     const cols = Math.ceil(width / spacing) + 1;
     const rows = Math.ceil(height / spacing) + 1;
 
     for (let c = 0; c < cols; c++) {
       for (let r = 0; r < rows; r++) {
-        // Randomly include ~35% of grid points as circuit junctions
-        if (Math.random() < 0.35) {
+        if (Math.random() < 0.32) {
           nodes.push({
-            x: c * spacing + (Math.random() - 0.5) * 20,
-            y: r * spacing + (Math.random() - 0.5) * 20,
+            x: c * spacing + (Math.random() - 0.5) * 16,
+            y: r * spacing + (Math.random() - 0.5) * 16,
             connections: []
           });
         }
@@ -186,42 +187,19 @@ function initCircuitCanvas() {
         const dx = nodes[i].x - nodes[j].x;
         const dy = nodes[i].y - nodes[j].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < spacing * 1.6 && nodes[i].connections.length < 3) {
+        if (dist < spacing * 1.5 && nodes[i].connections.length < 3) {
           nodes[i].connections.push(nodes[j]);
         }
       }
     }
-
-    // Spawn initial electric pulses
-    for (let p = 0; p < 12; p++) {
-      spawnPulse();
-    }
   }
 
-  function spawnPulse() {
-    if (nodes.length === 0) return;
-    const startNode = nodes[Math.floor(Math.random() * nodes.length)];
-    if (startNode.connections.length > 0) {
-      const endNode = startNode.connections[Math.floor(Math.random() * startNode.connections.length)];
-      pulses.push({
-        start: startNode,
-        end: endNode,
-        progress: 0,
-        speed: 0.006 + Math.random() * 0.012,
-        color: Math.random() > 0.4 ? '#00d4ff' : '#f59e0b'
-      });
-    }
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-
-  function animate() {
+  function drawStaticCircuit() {
     ctx.clearRect(0, 0, width, height);
 
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-    const traceColor = isLight ? 'rgba(0, 160, 220, 0.07)' : 'rgba(0, 212, 255, 0.06)';
-    const nodeColor = isLight ? 'rgba(0, 160, 220, 0.15)' : 'rgba(0, 212, 255, 0.18)';
+    const traceColor = isLight ? 'rgba(201, 125, 22, 0.08)' : 'rgba(234, 169, 67, 0.07)';
+    const nodeColor = isLight ? 'rgba(201, 125, 22, 0.18)' : 'rgba(234, 169, 67, 0.2)';
 
     // Draw Traces
     ctx.strokeStyle = traceColor;
@@ -240,75 +218,25 @@ function initCircuitCanvas() {
     ctx.fillStyle = nodeColor;
     for (let i = 0; i < nodes.length; i++) {
       ctx.beginPath();
-      ctx.arc(nodes[i].x, nodes[i].y, 2.5, 0, Math.PI * 2);
+      ctx.arc(nodes[i].x, nodes[i].y, 2, 0, Math.PI * 2);
       ctx.fill();
     }
-
-    // Animate Electric Pulses
-    for (let i = pulses.length - 1; i >= 0; i--) {
-      const p = pulses[i];
-      p.progress += p.speed;
-
-      if (p.progress >= 1) {
-        pulses.splice(i, 1);
-        spawnPulse();
-        continue;
-      }
-
-      const px = p.start.x + (p.end.x - p.start.x) * p.progress;
-      const py = p.start.y + (p.end.y - p.start.y) * p.progress;
-
-      // Glow pulse head
-      ctx.beginPath();
-      ctx.arc(px, py, 3, 0, Math.PI * 2);
-      ctx.fillStyle = p.color;
-      ctx.shadowColor = p.color;
-      ctx.shadowBlur = 10;
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    requestAnimationFrame(animate);
   }
 
-  animate();
+  window.renderCircuitCanvas = drawStaticCircuit;
+  window.addEventListener('resize', resize);
+  resize();
 }
 
-// --- Animated Stats Counter ---
+// --- Stats Counter (Instant Display, No Counting Animation) ---
 function initStatsCounter() {
   const counters = document.querySelectorAll('.counter-num');
-  let animated = false;
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting && !animated) {
-        animated = true;
-        counters.forEach(counter => {
-          const target = parseInt(counter.getAttribute('data-target'), 10);
-          const duration = 1600;
-          const stepTime = 25;
-          const steps = duration / stepTime;
-          const increment = target / steps;
-          let current = 0;
-
-          const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-              counter.textContent = target.toLocaleString();
-              clearInterval(timer);
-            } else {
-              counter.textContent = Math.floor(current).toLocaleString();
-            }
-          }, stepTime);
-        });
-      }
-    });
-  }, { threshold: 0.3 });
-
-  const statsSection = document.getElementById('stats');
-  if (statsSection) {
-    observer.observe(statsSection);
-  }
+  counters.forEach(counter => {
+    const target = parseInt(counter.getAttribute('data-target'), 10);
+    if (!isNaN(target)) {
+      counter.textContent = target.toLocaleString();
+    }
+  });
 }
 
 // --- Techspardha 2026 Countdown Timer ---
@@ -484,8 +412,8 @@ function handleUrlRouting() {
     const eventsSec = document.getElementById('events');
     if (eventsSec) {
       setTimeout(() => {
-        eventsSec.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
+        eventsSec.scrollIntoView({ behavior: 'auto' });
+      }, 100);
     }
   }
 }
@@ -506,13 +434,8 @@ function showToast(message, type = 'default') {
   container.appendChild(toast);
 
   setTimeout(() => {
-    toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateX(100%)';
-    setTimeout(() => {
-      toast.remove();
-    }, 400);
-  }, 4000);
+    toast.remove();
+  }, 3500);
 }
 
 // =========================================================================
@@ -524,38 +447,29 @@ async function initNavbarAuth() {
   try {
     const profile = await Electroreck.auth.getCurrentProfile();
     const navAuthSlot = document.getElementById('navAuthSlot');
-    const myRegsLink = document.getElementById('navMyRegsLink');
     const mobileMyRegs = document.getElementById('mobileMyRegsLink');
     const mobileAdmin = document.getElementById('mobileAdminLink');
 
+    if (mobileAdmin) mobileAdmin.style.display = 'block';
+
     if (profile) {
-      if (myRegsLink) myRegsLink.style.display = 'inline-block';
       if (mobileMyRegs) mobileMyRegs.style.display = 'block';
 
-      if (profile.role === 'admin' || profile.role === 'coordinator') {
-        if (mobileAdmin) mobileAdmin.style.display = 'block';
-      }
-
       if (navAuthSlot) {
-        let adminBtnHtml = '';
-        if (profile.role === 'admin' || profile.role === 'coordinator') {
-          adminBtnHtml = `<a href="admin.html" class="btn btn-outline" style="border-color: #fbbf24; color: #fbbf24; text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.8rem;">👑 Admin</a>`;
-        }
-
         navAuthSlot.innerHTML = `
-          ${adminBtnHtml}
-          <a href="my-registrations.html" class="btn btn-outline" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.8rem;">My Passes</a>
-          <button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="handleNavbarSignOut()">Sign Out</button>
+          <a href="admin.html" class="btn btn-outline" style="border-color: rgba(251, 191, 36, 0.45); color: #fbbf24; text-decoration: none; padding: 0.4rem 0.85rem; font-size: 0.825rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap;">👑 Admin Portal</a>
+          <a href="my-registrations.html" class="btn btn-outline" style="text-decoration: none; padding: 0.4rem 0.85rem; font-size: 0.825rem; white-space: nowrap;">My Passes</a>
+          <button class="btn btn-outline" style="padding: 0.4rem 0.85rem; font-size: 0.825rem; white-space: nowrap;" onclick="handleNavbarSignOut()">Sign Out</button>
         `;
       }
     } else {
-      if (myRegsLink) myRegsLink.style.display = 'none';
       if (mobileMyRegs) mobileMyRegs.style.display = 'none';
-      if (mobileAdmin) mobileAdmin.style.display = 'none';
+
       if (navAuthSlot) {
         navAuthSlot.innerHTML = `
-          <a href="login.html" class="btn btn-outline" style="text-decoration: none;">Sign In</a>
-          <button class="btn btn-primary glow-primary-sm" onclick="openInductionModal()">Join Society</button>
+          <a href="admin.html" class="btn btn-outline" style="border-color: rgba(251, 191, 36, 0.45); color: #fbbf24; text-decoration: none; padding: 0.4rem 0.85rem; font-size: 0.825rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap;">👑 Admin Portal</a>
+          <a href="login.html" class="btn btn-outline" style="text-decoration: none; padding: 0.4rem 0.85rem; font-size: 0.825rem; white-space: nowrap;">Sign In</a>
+          <button class="btn btn-primary glow-primary-sm" onclick="openInductionModal()" style="padding: 0.4rem 0.95rem; font-size: 0.825rem; white-space: nowrap;">Join Society</button>
         `;
       }
     }
@@ -604,7 +518,7 @@ async function loadDatabaseEvents() {
           </span>
         `;
         registerBtnHtml = `
-          <a href="register.html?event=${ev.slug}" class="btn" style="background-color: ${colorVar}; color: #060913; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+          <a href="register.html?event=${ev.slug}" class="btn" style="background-color: ${colorVar}; color: #020202; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
             Register
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
           </a>

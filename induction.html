@@ -17,8 +17,8 @@
     }
 
     .ind-card {
-      background: var(--card-bg, #0b1120);
-      border: 1px solid var(--border-color, rgba(0, 212, 255, 0.2));
+      background: var(--bg-card, #111111);
+      border: 1px solid var(--border-color, rgba(234, 169, 67, 0.2));
       border-radius: 16px;
       box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
       overflow: hidden;
@@ -27,7 +27,7 @@
     .ind-header {
       padding: 2.25rem 2rem 1.5rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      background: linear-gradient(180deg, rgba(0, 212, 255, 0.08) 0%, transparent 100%);
+      background: linear-gradient(180deg, rgba(234, 169, 67, 0.07) 0%, transparent 100%);
     }
 
     .ind-body {
@@ -200,7 +200,7 @@
             </div>
 
             <!-- Consent & Privacy Note -->
-            <div style="margin: 1.75rem 0 1.5rem; padding: 1rem; background: rgba(0, 212, 255, 0.04); border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 8px;">
+            <div style="margin: 1.75rem 0 1.5rem; padding: 1rem; background: rgba(234, 169, 67, 0.04); border: 1px solid rgba(234, 169, 67, 0.15); border-radius: 8px;">
               <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer; font-size: 0.85rem; color: var(--text-main);">
                 <input type="checkbox" id="indConsent" required style="margin-top: 0.2rem;">
                 <span>
@@ -220,21 +220,25 @@
         </div>
       </div>
 
-      <!-- ==================== SUCCESS RECEIPT VIEW ==================== -->
-      <div id="receiptContainer" class="success-receipt">
-        <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; display: inline-flex; align-items: center; justify-content: center; color: #10b981; margin-bottom: 1rem;">
+      <!-- ==================== STATUS RECEIPT VIEW ==================== -->
+      <div id="receiptContainer" class="success-receipt" style="display:none;">
+        <div id="receiptIconWrap" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; display: inline-flex; align-items: center; justify-content: center; color: #10b981; margin-bottom: 1rem;">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
-        <h2 style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;">
+        <h2 id="receiptTitle" style="font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem;">
           Application Submitted Successfully!
         </h2>
-        <p style="color: var(--text-muted); font-size: 0.875rem;">
+        <p id="receiptSubtitle" style="color: var(--text-muted); font-size: 0.875rem;">
           Thank you, <strong id="receiptCandidateName" style="color: #fff;"></strong>. Your induction form has been received.
         </p>
 
-        <div class="status-badge-lg">
+        <div id="receiptStatusBadge" class="status-badge-lg">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          Status: Pending Core Review
+          <span id="receiptStatusText">Status: Pending Core Review</span>
+        </div>
+
+        <div id="receiptReasonBox" style="display: none; max-width: 480px; margin: 1rem auto; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 0.85rem 1.25rem; text-align: left; font-size: 0.85rem; color: #f87171;">
+          <strong>Feedback / Reason:</strong> <span id="receiptReasonText"></span>
         </div>
 
         <div style="max-width: 480px; margin: 1rem auto 2rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.25rem; text-align: left; font-size: 0.875rem;">
@@ -252,7 +256,7 @@
           </div>
         </div>
 
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <div id="receiptActions" style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
           <a href="my-registrations.html" class="btn btn-primary" style="text-decoration: none;">
             View in My Registrations
           </a>
@@ -293,8 +297,15 @@
       document.getElementById('indEmail').value = currentUserProfile.email || '';
 
       // 2. Check if already applied
+      const urlParams = new URLSearchParams(window.location.search);
+      const isReapplyRequested = urlParams.get('reapply') === 'true';
+
       const existingApp = await Electroreck.induction.getMyApplication();
       if (existingApp) {
+        if (existingApp.status === 'Rejected' && isReapplyRequested) {
+          await startReapplication();
+          return;
+        }
         renderReceipt(existingApp);
         return;
       }
@@ -457,6 +468,122 @@
       document.getElementById('receiptRollNo').textContent = app.roll_number;
       document.getElementById('receiptWing').textContent = app.wing ? app.wing.name : 'Selected Wing';
       document.getElementById('receiptEmail').textContent = app.email;
+
+      const normStatus = app.status || 'Pending';
+      const iconWrap = document.getElementById('receiptIconWrap');
+      const titleEl = document.getElementById('receiptTitle');
+      const subtitleEl = document.getElementById('receiptSubtitle');
+      const badgeEl = document.getElementById('receiptStatusBadge');
+      const reasonBox = document.getElementById('receiptReasonBox');
+      const reasonText = document.getElementById('receiptReasonText');
+      const actionsEl = document.getElementById('receiptActions');
+
+      if (normStatus === 'Rejected') {
+        iconWrap.style.background = 'rgba(239, 68, 68, 0.12)';
+        iconWrap.style.borderColor = '#ef4444';
+        iconWrap.style.color = '#ef4444';
+        iconWrap.innerHTML = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+
+        titleEl.textContent = 'Application Not Accepted';
+        titleEl.style.color = '#f87171';
+
+        subtitleEl.innerHTML = `Thank you for your interest, <strong style="color: #fff;">${app.full_name}</strong>. Your induction form was reviewed by society coordinators and was not accepted at this time.`;
+
+        badgeEl.className = 'status-badge-lg';
+        badgeEl.style.background = 'rgba(239, 68, 68, 0.12)';
+        badgeEl.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+        badgeEl.style.color = '#f87171';
+        badgeEl.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg> Status: Rejected`;
+
+        if (app.rejection_reason) {
+          reasonBox.style.display = 'block';
+          reasonText.textContent = app.rejection_reason;
+        } else {
+          reasonBox.style.display = 'none';
+        }
+
+        actionsEl.innerHTML = `
+          <button type="button" class="btn btn-primary" onclick="startReapplication()" style="text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+            Re-apply for Society (New Application)
+          </button>
+          <a href="my-registrations.html" class="btn btn-outline" style="text-decoration: none;">View in My Registrations</a>
+          <a href="index.html" class="btn btn-outline" style="text-decoration: none;">Return to Home</a>
+        `;
+      } else if (normStatus === 'Approved' || normStatus === 'Accepted') {
+        iconWrap.style.background = 'rgba(16, 185, 129, 0.1)';
+        iconWrap.style.borderColor = '#10b981';
+        iconWrap.style.color = '#10b981';
+        iconWrap.innerHTML = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+        titleEl.textContent = 'Application Approved!';
+        titleEl.style.color = '#34d399';
+
+        subtitleEl.innerHTML = `Congratulations, <strong style="color: #fff;">${app.full_name}</strong>! You have been inducted into the Electroreck Society.`;
+
+        badgeEl.className = 'status-badge-lg';
+        badgeEl.style.background = 'rgba(16, 185, 129, 0.12)';
+        badgeEl.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+        badgeEl.style.color = '#34d399';
+        badgeEl.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Status: Member Inducted`;
+
+        reasonBox.style.display = 'none';
+
+        actionsEl.innerHTML = `
+          <a href="my-registrations.html" class="btn btn-primary" style="text-decoration: none;">View in My Registrations</a>
+          <a href="index.html" class="btn btn-outline" style="text-decoration: none;">Return to Home</a>
+        `;
+      } else {
+        // Pending
+        iconWrap.style.background = 'rgba(245, 158, 11, 0.1)';
+        iconWrap.style.borderColor = '#f59e0b';
+        iconWrap.style.color = '#f59e0b';
+        iconWrap.innerHTML = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+
+        titleEl.textContent = 'Application Submitted Successfully!';
+        titleEl.style.color = '#fff';
+
+        subtitleEl.innerHTML = `Thank you, <strong style="color: #fff;">${app.full_name}</strong>. Your induction form has been received.`;
+
+        badgeEl.className = 'status-badge-lg';
+        badgeEl.style.background = 'rgba(245, 158, 11, 0.12)';
+        badgeEl.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+        badgeEl.style.color = '#fbbf24';
+        badgeEl.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Status: Pending Core Review`;
+
+        reasonBox.style.display = 'none';
+
+        actionsEl.innerHTML = `
+          <a href="my-registrations.html" class="btn btn-primary" style="text-decoration: none;">View in My Registrations</a>
+          <a href="index.html" class="btn btn-outline" style="text-decoration: none;">Return to Home</a>
+        `;
+      }
+    }
+
+    async function startReapplication() {
+      document.getElementById('receiptContainer').style.display = 'none';
+      document.getElementById('formContainer').style.display = 'block';
+
+      if (availableWings.length === 0) {
+        await loadWings();
+      }
+
+      // Reset form fields
+      document.getElementById('inductionForm').reset();
+      if (currentUserProfile) {
+        document.getElementById('indFullName').value = currentUserProfile.full_name || '';
+        document.getElementById('indEmail').value = currentUserProfile.email || '';
+        if (currentUserProfile.roll_number) {
+          document.getElementById('indRollNo').value = currentUserProfile.roll_number;
+        }
+      }
+      const submitBtn = document.getElementById('indSubmitBtn');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Induction Application';
+      }
+      clearErrors();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   </script>
 </body>

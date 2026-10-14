@@ -62,6 +62,15 @@
           created_at: new Date('2026-01-02').toISOString()
         },
         {
+          id: 'student-sudhanshu-001',
+          email: 'sudhanshu.tiwari@nitkkr.ac.in',
+          full_name: 'Sudhanshu Tiwari',
+          role: 'student',
+          roll_number: '123100088',
+          coordinator_event_id: null,
+          created_at: new Date('2026-01-05').toISOString()
+        },
+        {
           id: 'student-demo-004',
           email: 'rohan.123100045@nitkkr.ac.in',
           full_name: 'Rohan Sharma',
@@ -172,7 +181,7 @@
       event_registrations: [
         {
           id: 'reg-001',
-          pass_id: 'ER-2026-00001',
+          pass_id: 'ER-2026-00101',
           event_id: 'event-electrica',
           user_id: 'student-demo-004',
           full_name: 'Rohan Sharma',
@@ -183,9 +192,52 @@
           phone: '9876543210',
           team_name: 'Spark Masters',
           team_members: [{ name: 'Kavita Singh', roll_number: '123100046' }],
-          status: 'Confirmed',
+          status: 'Approved',
+          rejection_reason: null,
+          reviewed_at: new Date(Date.now() - 43200000).toISOString(),
           consent_given: true,
           created_at: new Date(Date.now() - 86400000).toISOString()
+        },
+        {
+          id: 'reg-002',
+          pass_id: 'ER-2026-00102',
+          event_id: 'event-advanza',
+          user_id: 'student-demo-004',
+          full_name: 'Rohan Sharma',
+          email: 'rohan.123100045@nitkkr.ac.in',
+          roll_number: '123100045',
+          department: 'Electrical Engineering',
+          year_of_study: '2nd Year (B.Tech)',
+          phone: '9876543210',
+          team_name: 'Volt Pioneers',
+          team_members: [
+            { name: 'Ananya Gupta', roll_number: '123100047' },
+            { name: 'Dev Malhotra', roll_number: '123100048' }
+          ],
+          status: 'Pending',
+          rejection_reason: null,
+          reviewed_at: null,
+          consent_given: true,
+          created_at: new Date(Date.now() - 3600000).toISOString()
+        },
+        {
+          id: 'reg-003',
+          pass_id: null,
+          event_id: 'event-digispark',
+          user_id: 'student-sample-005',
+          full_name: 'Priya Mehta',
+          email: 'priya.123100050@nitkkr.ac.in',
+          roll_number: '123100050',
+          department: 'Electronics & Communication',
+          year_of_study: '3rd Year (B.Tech)',
+          phone: '9988776655',
+          team_name: null,
+          team_members: [],
+          status: 'Rejected',
+          rejection_reason: 'Solo registration not allowed; Digispark requires a minimum team of 2 members.',
+          reviewed_at: new Date(Date.now() - 7200000).toISOString(),
+          consent_given: true,
+          created_at: new Date(Date.now() - 172800000).toISOString()
         }
       ],
       induction_applications: [
@@ -207,9 +259,9 @@
       ],
       currentSession: {
         user: {
-          id: 'student-demo-004',
-          email: 'rohan.123100045@nitkkr.ac.in',
-          user_metadata: { full_name: 'Rohan Sharma' }
+          id: 'student-sudhanshu-001',
+          email: 'sudhanshu.tiwari@nitkkr.ac.in',
+          user_metadata: { full_name: 'Sudhanshu Tiwari', roll_number: '123100088' }
         }
       }
     };
@@ -218,13 +270,49 @@
   function loadDb() {
     try {
       const data = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (data) return JSON.parse(data);
+      if (data) {
+        const parsed = JSON.parse(data);
+        // Ensure Sudhanshu Tiwari exists in profiles
+        if (!parsed.profiles.some(p => p.email === 'sudhanshu.tiwari@nitkkr.ac.in')) {
+          parsed.profiles.push({
+            id: 'student-sudhanshu-001',
+            email: 'sudhanshu.tiwari@nitkkr.ac.in',
+            full_name: 'Sudhanshu Tiwari',
+            role: 'student',
+            roll_number: '123100088',
+            coordinator_event_id: null,
+            created_at: new Date('2026-01-05').toISOString()
+          });
+          saveDb(parsed);
+        }
+        return parsed;
+      }
     } catch (e) {
       console.warn('Error reading simulated database:', e);
     }
     const init = getInitialDbState();
     saveDb(init);
     return init;
+  }
+
+  // One-time browser healing: if visiting a student page and session was hijacked to admin, reset to Sudhanshu Tiwari
+  if (typeof window !== 'undefined' && window.location && window.location.pathname && !window.location.pathname.includes('admin')) {
+    try {
+      const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (data) {
+        const parsed = JSON.parse(data);
+        if (parsed.currentSession && parsed.currentSession.user && (parsed.currentSession.user.email === 'admin@nitkkr.ac.in' || parsed.currentSession.user.email === 'admin@electrorec.club')) {
+          parsed.currentSession = {
+            user: {
+              id: 'student-sudhanshu-001',
+              email: 'sudhanshu.tiwari@nitkkr.ac.in',
+              user_metadata: { full_name: 'Sudhanshu Tiwari', roll_number: '123100088' }
+            }
+          };
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(parsed));
+        }
+      }
+    } catch (e) {}
   }
 
   function saveDb(db) {
@@ -414,6 +502,24 @@
       },
 
       async getCurrentProfile() {
+        // If on admin portal, prioritize isolated admin session so student session is never overwritten
+        const isAdminPage = typeof window !== 'undefined' && window.location && window.location.pathname && window.location.pathname.includes('admin');
+        if (isAdminPage) {
+          try {
+            const adminRaw = localStorage.getItem('electroreck_admin_session');
+            if (adminRaw) {
+              const parsed = JSON.parse(adminRaw);
+              if (parsed && parsed.profile) {
+                return parsed.profile;
+              }
+            }
+            const legacyProfile = localStorage.getItem('electrorec_admin_profile');
+            if (legacyProfile) {
+              return JSON.parse(legacyProfile);
+            }
+          } catch (e) {}
+        }
+
         const session = await this.getSession();
         if (!session || !session.user) return null;
 
@@ -460,7 +566,93 @@
           }
         };
         saveDb(db);
-        window.location.reload();
+        if (typeof window !== 'undefined' && window.location && window.location.reload) {
+          window.location.reload();
+        }
+      }
+    },
+
+    // --- RESTRICTED ADMIN AUTHENTICATION GATEWAY ---
+    adminAuth: {
+      getAccounts() {
+        return [
+          {
+            email: 'admin@electrorec.club',
+            aliases: ['admin@nitkkr.ac.in'],
+            password: 'electrorec2026',
+            full_name: 'Dr. S. K. Sharma (Super Admin)',
+            role: 'admin',
+            roleName: 'Super Admin',
+            coordinator_event_id: null
+          },
+          {
+            email: 'organizer@electrorec.club',
+            aliases: ['organizer@nitkkr.ac.in', 'electrica.coord@nitkkr.ac.in'],
+            password: 'organizer2026',
+            full_name: 'Aarav Patel (Lead Organizer)',
+            role: 'coordinator',
+            roleName: 'Lead Organizer',
+            coordinator_event_id: 'event-electrica'
+          },
+          {
+            email: 'core@electrorec.club',
+            aliases: ['core@nitkkr.ac.in', 'advanza.coord@nitkkr.ac.in'],
+            password: 'coreteam2026',
+            full_name: 'Pooja Verma (Core Team Coordinator)',
+            role: 'coordinator',
+            roleName: 'Core Team',
+            coordinator_event_id: 'event-advanza'
+          }
+        ];
+      },
+      async login(email, password) {
+        if (!email || !password) {
+          throw new Error('Please enter both authorized email and password.');
+        }
+        const cleanEmail = email.trim().toLowerCase();
+        const accounts = this.getAccounts();
+        const matched = accounts.find(acc => 
+          (acc.email.toLowerCase() === cleanEmail || acc.aliases.some(a => a.toLowerCase() === cleanEmail)) &&
+          acc.password === password
+        );
+        if (!matched) {
+          throw new Error('Restricted Access Denied: Invalid Credentials');
+        }
+        const profile = {
+          id: matched.role === 'admin' ? 'admin-uuid-001' : (matched.roleName.includes('Lead') ? 'coord-electrica-002' : 'coord-advanza-003'),
+          email: matched.email,
+          full_name: matched.full_name,
+          name: matched.full_name,
+          role: matched.role,
+          roleName: matched.roleName,
+          coordinator_event_id: matched.coordinator_event_id
+        };
+        const token = 'erc_adm_' + Math.random().toString(36).substring(2) + Date.now();
+        const adminSession = { token, profile };
+        try {
+          localStorage.setItem('electroreck_admin_session', JSON.stringify(adminSession));
+          localStorage.setItem('electrorec_admin_token', token);
+          localStorage.setItem('electrorec_admin_profile', JSON.stringify(profile));
+        } catch (e) {}
+        return adminSession;
+      },
+      getSession() {
+        try {
+          const raw = localStorage.getItem('electroreck_admin_session');
+          if (raw) return JSON.parse(raw);
+          const legacyProfile = localStorage.getItem('electrorec_admin_profile');
+          if (legacyProfile) {
+            return { token: localStorage.getItem('electrorec_admin_token') || 'token', profile: JSON.parse(legacyProfile) };
+          }
+        } catch (e) {}
+        return null;
+      },
+      logout() {
+        try {
+          localStorage.removeItem('electroreck_admin_session');
+          localStorage.removeItem('electrorec_admin_token');
+          localStorage.removeItem('electrorec_admin_profile');
+        } catch (e) {}
       }
     },
 
@@ -499,8 +691,9 @@
         // Local Simulator
         const db = loadDb();
         return db.events.map(ev => {
-          const activeRegs = db.event_registrations.filter(r => r.event_id === ev.id && r.status !== 'Rejected' && r.status !== 'Cancelled');
-          const seatsFilled = activeRegs.length;
+          // Seats filled = ONLY Approved registrations
+          const approvedRegs = db.event_registrations.filter(r => r.event_id === ev.id && (r.status === 'Approved' || r.status === 'Confirmed'));
+          const seatsFilled = approvedRegs.length;
           const isFull = seatsFilled >= ev.max_seats;
           const isPastDeadline = new Date() > new Date(ev.registration_deadline);
           let status = 'Open';
@@ -585,7 +778,7 @@
             team_name: team_name ? team_name.trim() : null,
             team_members: team_members || [],
             consent_given: true,
-            status: 'Confirmed'
+            status: 'Pending'
           };
 
           const { data, error } = await realClient
@@ -622,23 +815,26 @@
           throw new Error(`Registration deadline for ${event.title} has passed.`);
         }
 
-        // Check capacity (active registrations exclude Rejected/Cancelled)
-        const activeRegistrations = db.event_registrations.filter(r => r.event_id === event_id && r.status !== 'Rejected' && r.status !== 'Cancelled');
-        if (activeRegistrations.length >= event.max_seats) {
-          throw new Error(`Event "${event.title}" is full (${event.max_seats} seats filled).`);
+        // Check capacity — only Approved registrations count toward seats
+        const approvedRegistrations = db.event_registrations.filter(r => r.event_id === event_id && (r.status === 'Approved' || r.status === 'Confirmed'));
+        if (approvedRegistrations.length >= event.max_seats) {
+          throw new Error(`Event "${event.title}" is full (${event.max_seats} approved seats filled).`);
         }
 
-        // Check duplicate user
-        const dupUser = db.event_registrations.find(r => r.event_id === event_id && r.user_id === session.user.id && r.status !== 'Cancelled');
+        // Check duplicate user (only Active/Pending/Approved registrations block; Rejected registrations allow re-registering)
+        const dupUser = db.event_registrations.find(r => r.event_id === event_id && r.user_id === session.user.id && r.status !== 'Cancelled' && r.status !== 'Rejected');
         if (dupUser) {
           throw new Error('You have already registered for this event.');
         }
 
-        // Check duplicate roll number
-        const dupRoll = db.event_registrations.find(r => r.event_id === event_id && r.roll_number === roll_number.trim() && r.status !== 'Cancelled');
+        // Check duplicate roll number (excluding Rejected)
+        const dupRoll = db.event_registrations.find(r => r.event_id === event_id && r.roll_number === roll_number.trim() && r.status !== 'Cancelled' && r.status !== 'Rejected');
         if (dupRoll) {
           throw new Error(`Roll Number ${roll_number} is already registered for this event.`);
         }
+
+        // Remove any previous rejected registration so a fresh record is registered
+        db.event_registrations = db.event_registrations.filter(r => !(r.event_id === event_id && r.user_id === session.user.id && r.status === 'Rejected'));
 
         // Check team requirements
         const membersList = Array.isArray(team_members) ? team_members : [];
@@ -652,12 +848,10 @@
           }
         }
 
-        db.passSequence = (db.passSequence || 100) + 1;
-        const passId = `ER-2026-${String(db.passSequence).padStart(5, '0')}`;
-
+        // Pass ID is only assigned when admin approves — leave null for Pending
         const newRecord = {
           id: 'reg-' + Math.random().toString(36).substring(2, 9),
-          pass_id: passId,
+          pass_id: null,
           event_id: event.id,
           user_id: session.user.id,
           full_name: full_name.trim(),
@@ -668,7 +862,9 @@
           phone: phone.trim(),
           team_name: team_name ? team_name.trim() : null,
           team_members: membersList,
-          status: 'Confirmed',
+          status: 'Pending',
+          rejection_reason: null,
+          reviewed_at: null,
           consent_given: true,
           created_at: new Date().toISOString(),
           event: {
@@ -753,16 +949,28 @@
         }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
       },
 
-      async updateStatus(id, newStatus) {
+      async updateStatus(id, newStatus, rejectionReason = null) {
         const profile = await Electroreck.auth.getCurrentProfile();
         if (!profile || (profile.role !== 'admin' && profile.role !== 'coordinator')) {
           throw new Error('Access denied: You do not have permission to modify registration status.');
         }
 
+        const normStatus = (newStatus === 'Confirmed' || newStatus === 'Approved') ? 'Approved' : newStatus;
+
         if (realClient) {
+          const updates = { 
+            status: normStatus, 
+            updated_at: new Date().toISOString() 
+          };
+          if (rejectionReason !== null && rejectionReason !== undefined) {
+            updates.rejection_reason = rejectionReason;
+          }
+          if (normStatus === 'Approved') {
+            updates.reviewed_at = new Date().toISOString();
+          }
           const { data, error } = await realClient
             .from('event_registrations')
-            .update({ status: newStatus, updated_at: new Date().toISOString() })
+            .update(updates)
             .eq('id', id)
             .select()
             .single();
@@ -779,10 +987,29 @@
           throw new Error('Access denied: You can only alter registrations for your assigned event.');
         }
 
-        db.event_registrations[idx].status = newStatus;
-        db.event_registrations[idx].updated_at = new Date().toISOString();
+        const reg = db.event_registrations[idx];
+        const event = db.events.find(e => e.id === reg.event_id);
+
+        if (normStatus === 'Approved' && reg.status !== 'Approved' && reg.status !== 'Confirmed') {
+          // Check capacity
+          const approvedCount = db.event_registrations.filter(r => r.event_id === reg.event_id && (r.status === 'Approved' || r.status === 'Confirmed')).length;
+          if (event && approvedCount >= event.max_seats) {
+            throw new Error(`Cannot approve: Event "${event.title}" is already full (${event.max_seats} approved seats filled).`);
+          }
+          if (!reg.pass_id) {
+            db.passSequence = (db.passSequence || 100) + 1;
+            reg.pass_id = `ER-2026-${String(db.passSequence).padStart(5, '0')}`;
+          }
+          reg.reviewed_at = new Date().toISOString();
+        }
+
+        reg.status = normStatus;
+        if (rejectionReason !== null && rejectionReason !== undefined) {
+          reg.rejection_reason = rejectionReason;
+        }
+        reg.updated_at = new Date().toISOString();
         saveDb(db);
-        return db.event_registrations[idx];
+        return reg;
       }
     },
 
@@ -925,10 +1152,16 @@
 
         // Local Simulator Implementation
         const db = loadDb();
-        const existingApp = db.induction_applications.find(a => a.user_id === session.user.id || a.roll_number === roll_number.trim());
+        const existingApp = db.induction_applications.find(a => 
+          (a.user_id === session.user.id || a.roll_number === roll_number.trim()) &&
+          a.status !== 'Rejected' && a.status !== 'Cancelled'
+        );
         if (existingApp) {
           throw new Error('You or your Roll Number have already submitted an induction application.');
         }
+
+        // Clean up previous rejected record so new application is active
+        db.induction_applications = db.induction_applications.filter(a => !(a.user_id === session.user.id && a.status === 'Rejected'));
 
         const wing = db.wings.find(w => w.id === preferred_wing_id);
         const newApp = {
@@ -965,13 +1198,18 @@
               wing:wings(id, name, description)
             `)
             .eq('user_id', session.user.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
             .maybeSingle();
           if (error) throw error;
           return data;
         }
 
         const db = loadDb();
-        const app = db.induction_applications.find(a => a.user_id === session.user.id);
+        const userApps = db.induction_applications
+          .filter(a => a.user_id === session.user.id)
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        const app = userApps[0];
         if (!app) return null;
         const wing = db.wings.find(w => w.id === app.preferred_wing_id);
         return { ...app, wing: wing || null };

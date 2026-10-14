@@ -9,6 +9,9 @@
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-client.js"></script>
+  <!-- PDF generation libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     .my-reg-wrapper {
       max-width: 1000px;
@@ -51,8 +54,8 @@
     }
 
     .pass-card {
-      background: var(--card-bg, #0b1120);
-      border: 1px solid var(--border-color, rgba(0, 212, 255, 0.2));
+      background: var(--bg-card, #111111);
+      border: 1px solid var(--border-color, rgba(234, 169, 67, 0.2));
       border-radius: 14px;
       padding: 1.5rem;
       display: flex;
@@ -66,7 +69,7 @@
 
     .pass-card:hover {
       transform: translateY(-3px);
-      border-color: var(--primary, #00d4ff);
+      border-color: var(--primary, #eaa943);
     }
 
     .pass-card-top {
@@ -80,11 +83,11 @@
       font-family: monospace;
       font-size: 0.825rem;
       font-weight: 700;
-      background: rgba(0, 212, 255, 0.1);
-      color: var(--primary, #00d4ff);
+      background: rgba(234, 169, 67, 0.1);
+      color: var(--primary, #eaa943);
       padding: 0.25rem 0.6rem;
       border-radius: 6px;
-      border: 1px solid rgba(0, 212, 255, 0.25);
+      border: 1px solid rgba(234, 169, 67, 0.25);
     }
 
     .status-tag {
@@ -96,7 +99,8 @@
       letter-spacing: 0.04em;
     }
 
-    .status-confirmed {
+    .status-confirmed,
+    .status-approved {
       background: rgba(16, 185, 129, 0.15);
       color: #34d399;
       border: 1px solid rgba(16, 185, 129, 0.3);
@@ -131,7 +135,7 @@
 
     /* Modal for Pass Details & Print */
     .modal-pass-body {
-      background: #090e1a;
+      background: var(--bg-card, #111111);
       border: 2px solid var(--primary);
       border-radius: 16px;
       padding: 2rem;
@@ -139,20 +143,56 @@
     }
 
     @media print {
-      body * {
-        visibility: hidden;
-      }
-      #printPassArea, #printPassArea * {
-        visibility: visible;
-      }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body * { visibility: hidden; }
+      #printPassArea, #printPassArea * { visibility: visible; }
       #printPassArea {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        background: #fff !important;
-        color: #000 !important;
+        position: fixed;
+        left: 0; top: 0;
+        width: 100%; height: auto;
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 1.5cm;
+        z-index: 99999;
       }
+      #printPassArea > div {
+        background: #ffffff !important;
+        border: 3px solid #c9892f !important;
+        color: #000000 !important;
+      }
+      /* Pass header */
+      #printPassArea [style*="border-bottom"] {
+        border-bottom: 1px dashed #cccccc !important;
+      }
+      #modalPassId {
+        color: #c9892f !important;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+      }
+      #modalEventTitle { color: #000000 !important; }
+      #modalEventVenue { color: #555555 !important; }
+      /* Grid labels & values */
+      #printPassArea span[style*="color: var(--text-muted)"] {
+        color: #666666 !important;
+      }
+      #modalParticipantName, #modalRollNo, #modalDept, #modalPhone {
+        color: #000000 !important;
+      }
+      /* Team box */
+      #modalTeamBox {
+        background: #f5f5f5 !important;
+        border-radius: 6px !important;
+        color: #000000 !important;
+      }
+      #modalTeamName { color: #c9892f !important; }
+      #modalTeamMembers { color: #333333 !important; }
+      /* Barcode */
+      #printPassArea svg rect { fill: #000000 !important; }
+      #printPassArea [style*="border-top"] { border-top: 1px dashed #cccccc !important; }
+      /* Status badge */
+      .status-confirmed { background: #d1fae5 !important; color: #065f46 !important; }
+      /* No-print items hidden */
+      .no-print, .modal-header, .modal-close-btn { display: none !important; }
     }
   </style>
 </head>
@@ -176,7 +216,7 @@
       </div>
 
       <div class="nav-actions">
-        <span id="userNavRole" style="font-size: 0.75rem; text-transform: uppercase; padding: 0.2rem 0.5rem; background: rgba(0, 212, 255, 0.1); border-radius: 4px; color: var(--primary);">Student</span>
+        <span id="userNavRole" style="font-size: 0.75rem; text-transform: uppercase; padding: 0.2rem 0.5rem; background: rgba(234, 169, 67, 0.1); border-radius: 4px; color: var(--primary);">Student</span>
         <button class="btn btn-outline" id="logoutBtn" onclick="handleSignOut()">Sign Out</button>
       </div>
     </div>
@@ -235,7 +275,7 @@
       </div>
 
       <div class="modal-body" style="padding: 1.5rem;" id="printPassArea">
-        <div style="background: linear-gradient(135deg, #090e1a 0%, #111a2e 100%); border: 2px solid var(--primary, #00d4ff); border-radius: 14px; padding: 1.75rem; box-shadow: 0 0 30px rgba(0, 212, 255, 0.15);">
+        <div style="background: var(--bg-card, #111111); border: 2px solid var(--primary, #eaa943); border-radius: 14px; padding: 1.75rem; box-shadow: 0 0 30px rgba(234, 169, 67, 0.15);">
           
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 1rem; margin-bottom: 1rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -307,7 +347,11 @@
         </div>
 
         <div style="display: flex; gap: 1rem; margin-top: 1.5rem;" class="no-print">
-          <button class="btn btn-primary" onclick="window.print()" style="flex: 1;">Print / Save Pass (PDF)</button>
+          <button class="btn btn-primary" id="modalSavePdfBtn" onclick="saveModalPassAsPDF()" style="flex: 1;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Save as PDF
+          </button>
+          <button class="btn btn-outline" onclick="window.print()" style="flex: 1;">Print Pass</button>
           <button class="btn btn-outline" onclick="closePassModal()" style="flex: 1;">Close</button>
         </div>
       </div>
@@ -360,13 +404,62 @@
 
         container.innerHTML = myRegistrationsList.map(reg => {
           const ev = reg.event || {};
-          const statusClass = `status-${reg.status.toLowerCase()}`;
+          const isApproved = reg.status === 'Approved' || reg.status === 'Confirmed';
+          const isPending = reg.status === 'Pending';
+          const isRejected = reg.status === 'Rejected';
+
+          let topChip = '';
+          let statusBadge = '';
+          let actionSection = '';
+
+          if (isApproved) {
+            topChip = `<span class="pass-id-chip">${reg.pass_id || 'PASS ISSUED'}</span>`;
+            statusBadge = `<span class="status-tag status-approved">Approved</span>`;
+            actionSection = `
+              <button type="button" class="btn btn-outline" style="width: 100%; font-size: 0.85rem;" onclick="openPassModal('${reg.id}')">
+                View & Print Pass
+              </button>
+            `;
+          } else if (isPending) {
+            topChip = `<span class="pass-id-chip" style="color: #fbbf24; background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3);">⏳ In Review</span>`;
+            statusBadge = `<span class="status-tag status-pending">Pending</span>`;
+            actionSection = `
+              <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 0.75rem; font-size: 0.775rem; color: #fbbf24; line-height: 1.4;">
+                Request submitted, awaiting admin approval. Official pass ID will be issued upon approval.
+              </div>
+              <button type="button" class="btn btn-outline" style="width: 100%; font-size: 0.85rem; opacity: 0.5; cursor: not-allowed;" disabled>
+                Pass Available Upon Approval
+              </button>
+            `;
+          } else if (isRejected) {
+            topChip = `<span class="pass-id-chip" style="color: #f87171; background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3);">Declined</span>`;
+            statusBadge = `<span class="status-tag status-rejected">Rejected</span>`;
+            const reasonText = reg.rejection_reason ? reg.rejection_reason.replace(/"/g, '&quot;') : 'Registration not accepted by society organizers.';
+            actionSection = `
+              <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 8px; padding: 0.65rem 0.85rem; margin-bottom: 0.75rem; font-size: 0.775rem; color: #f87171; line-height: 1.4;">
+                <strong>Reason:</strong> ${reasonText}
+              </div>
+              <a href="register.html?event=${ev.slug || ''}" class="btn btn-primary" style="width: 100%; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-weight: 700;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                Re-register for Event
+              </a>
+            `;
+          } else {
+            topChip = `<span class="pass-id-chip">${reg.pass_id || '—'}</span>`;
+            statusBadge = `<span class="status-tag status-cancelled">${reg.status}</span>`;
+            actionSection = `
+              <button type="button" class="btn btn-outline" style="width: 100%; font-size: 0.85rem; opacity: 0.5; cursor: not-allowed;" disabled>
+                Registration ${reg.status}
+              </button>
+            `;
+          }
+
           return `
             <div class="pass-card">
               <div>
                 <div class="pass-card-top">
-                  <span class="pass-id-chip">${reg.pass_id}</span>
-                  <span class="status-tag ${statusClass}">${reg.status}</span>
+                  ${topChip}
+                  ${statusBadge}
                 </div>
                 <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin-bottom: 0.35rem;">
                   ${ev.title || 'Event'}
@@ -382,9 +475,7 @@
                 </div>
               </div>
 
-              <button type="button" class="btn btn-outline" style="width: 100%; font-size: 0.85rem;" onclick="openPassModal('${reg.id}')">
-                View & Print Pass
-              </button>
+              ${actionSection}
             </div>
           `;
         }).join('');
@@ -412,25 +503,61 @@
           return;
         }
 
-        const statusClass = `status-${myInductionApp.status.toLowerCase()}`;
+        // Normalize status
+        const normStatus = myInductionApp.status === 'Accepted' ? 'Approved' : (myInductionApp.status || 'Pending');
+        const statusClass = normStatus === 'Approved'     ? 'status-confirmed'
+                          : normStatus === 'Pending'      ? 'status-pending'
+                          : normStatus === 'Shortlisted'  ? 'status-pending'
+                          : 'status-rejected';
         container.innerHTML = `
-          <div style="background: var(--card-bg, #0b1120); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-                <span class="event-cat-badge bg-primary-10" style="color: var(--primary);">Induction 2026</span>
-                <span class="status-tag ${statusClass}">Status: ${myInductionApp.status}</span>
+          <div style="background: var(--bg-card, #111111); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                  <span class="event-cat-badge bg-primary-10" style="color: var(--primary);">Induction 2026</span>
+                  <span class="status-tag ${statusClass}">${normStatus}</span>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 0.35rem;">
+                  Preferred Wing: ${myInductionApp.wing ? myInductionApp.wing.name : 'Core Wing'}
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 650px;">
+                  "<em>${myInductionApp.reason_for_joining}</em>"
+                </p>
               </div>
-              <h3 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 0.35rem;">
-                Preferred Wing: ${myInductionApp.wing ? myInductionApp.wing.name : 'Core Wing'}
-              </h3>
-              <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 650px;">
-                "<em>${myInductionApp.reason_for_joining}</em>"
-              </p>
+              <div>
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block; text-align: right;">Applied On</span>
+                <strong style="color: #fff; font-size: 0.85rem;">${new Date(myInductionApp.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>
+              </div>
             </div>
-            <div>
-              <span style="font-size: 0.75rem; color: var(--text-muted); display: block; text-align: right;">Applied On</span>
-              <strong style="color: #fff; font-size: 0.85rem;">${new Date(myInductionApp.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>
-            </div>
+
+            ${normStatus === 'Pending' ? `
+              <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:0.75rem;">
+                <div style="font-size:0.8rem;font-weight:600;color:#fbbf24;margin-bottom:0.15rem;">⏳ Under Review</div>
+                <div style="font-size:0.775rem;color:var(--text-muted);">Your application is being reviewed by the society team.</div>
+              </div>
+            ` : ''}
+            ${normStatus === 'Shortlisted' ? `
+              <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);border-radius:8px;padding:0.75rem;">
+                <div style="font-size:0.8rem;font-weight:600;color:#a78bfa;margin-bottom:0.15rem;">★ Shortlisted!</div>
+                <div style="font-size:0.775rem;color:var(--text-muted);">You've been shortlisted. Final approval coming soon — watch your email.</div>
+              </div>
+            ` : ''}
+            ${normStatus === 'Approved' ? `
+              <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:0.75rem;">
+                <div style="font-size:0.8rem;font-weight:600;color:#34d399;margin-bottom:0.15rem;">✓ Congratulations!</div>
+                <div style="font-size:0.775rem;color:var(--text-muted);">You are now an official member of the Electroreck Society.</div>
+              </div>
+            ` : ''}
+            ${normStatus === 'Rejected' ? `
+              <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:0.75rem;">
+                <div style="font-size:0.8rem;font-weight:600;color:#f87171;margin-bottom:0.15rem;">✕ Application Not Selected</div>
+                <div style="font-size:0.775rem;color:var(--text-muted);margin-bottom:0.75rem;">${myInductionApp.rejection_reason || 'Application was not selected for this tenure. You are welcome to re-apply.'}</div>
+                <a href="induction.html?reapply=true" class="btn btn-primary" style="font-size:0.8rem;padding:0.45rem 0.9rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.35rem;font-weight:700;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+                  Re-apply for Society Induction
+                </a>
+              </div>
+            ` : ''}
           </div>
         `;
       } catch (err) {
@@ -440,12 +567,12 @@
 
     function openPassModal(regId) {
       const reg = myRegistrationsList.find(r => r.id === regId);
-      if (!reg) return;
+      if (!reg || (reg.status !== 'Approved' && reg.status !== 'Confirmed')) return;
 
       const ev = reg.event || {};
-      document.getElementById('modalPassId').textContent = reg.pass_id;
-      document.getElementById('modalPassStatus').textContent = reg.status;
-      document.getElementById('modalPassStatus').className = `status-tag status-${reg.status.toLowerCase()}`;
+      document.getElementById('modalPassId').textContent = reg.pass_id || 'PASS CONFIRMED';
+      document.getElementById('modalPassStatus').textContent = 'Approved';
+      document.getElementById('modalPassStatus').className = 'status-tag status-approved';
       document.getElementById('modalEventTitle').textContent = ev.title || 'Event Pass';
       document.getElementById('modalEventVenue').textContent = `${ev.venue || 'TBA'} · ${ev.event_date ? new Date(ev.event_date).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : ''}`;
       document.getElementById('modalParticipantName').textContent = reg.full_name;
@@ -471,6 +598,51 @@
 
     function closePassModal() {
       document.getElementById('passModal').classList.remove('open');
+    }
+
+    async function saveModalPassAsPDF() {
+      const btn = document.getElementById('modalSavePdfBtn');
+      btn.disabled = true;
+      btn.textContent = 'Generating PDF...';
+      try {
+        const passArea = document.getElementById('printPassArea').querySelector('div');
+        const canvas = await html2canvas(passArea, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+          useCORS: true,
+          logging: false
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new window.jspdf.jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: 'a5'
+        });
+
+        const pdfW = pdf.internal.pageSize.getWidth();
+        const pdfH = pdf.internal.pageSize.getHeight();
+        const imgAspect = canvas.width / canvas.height;
+        let drawW = pdfW - 10;
+        let drawH = drawW / imgAspect;
+        if (drawH > pdfH - 10) {
+          drawH = pdfH - 10;
+          drawW = drawH * imgAspect;
+        }
+        const x = (pdfW - drawW) / 2;
+        const y = (pdfH - drawH) / 2;
+
+        pdf.addImage(imgData, 'PNG', x, y, drawW, drawH);
+        const passId = document.getElementById('modalPassId').textContent || 'pass';
+        pdf.save(`Electroreck-Pass-${passId}.pdf`);
+      } catch (err) {
+        console.error('PDF generation failed:', err);
+        alert('PDF generation failed. Please use Print → Save as PDF instead.');
+        window.print();
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Save as PDF';
+      }
     }
   </script>
 </body>

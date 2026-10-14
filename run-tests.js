@@ -168,11 +168,33 @@ async function runTestSuite() {
       consent_given: true
     });
 
-    if (registeredPass.pass_id.startsWith('ER-2026-') && registeredPass.status === 'Confirmed') {
-      await Electroreck.email.sendPassConfirmation(registeredPass);
-      record('Event Registration & Pass Generation (ER-2026-XXXXX)', true, `Generated Pass: ${registeredPass.pass_id}`);
+    if (registeredPass.status !== 'Pending') {
+      throw new Error(`Registration should start as 'Pending', got '${registeredPass.status}'`);
+    }
+
+    // Admin approves the request (which generates pass_id and confirms seat)
+    mockLocalStorage.setItem('electroreck_simulated_db_v1', JSON.stringify({
+      ...JSON.parse(mockLocalStorage.getItem('electroreck_simulated_db_v1')),
+      currentSession: {
+        user: { id: 'admin-uuid-001', email: 'admin@nitkkr.ac.in', user_metadata: { full_name: 'Super Admin' } }
+      }
+    }));
+
+    const approvedPass = await Electroreck.registrations.updateStatus(registeredPass.id, 'Approved');
+
+    // Restore student session
+    mockLocalStorage.setItem('electroreck_simulated_db_v1', JSON.stringify({
+      ...JSON.parse(mockLocalStorage.getItem('electroreck_simulated_db_v1')),
+      currentSession: {
+        user: testStudentUser
+      }
+    }));
+
+    if (approvedPass.pass_id && approvedPass.pass_id.startsWith('ER-2026-') && (approvedPass.status === 'Approved' || approvedPass.status === 'Confirmed')) {
+      await Electroreck.email.sendPassConfirmation(approvedPass);
+      record('Event Registration & Pass Generation (ER-2026-XXXXX)', true, `Pending -> Approved -> Generated Pass: ${approvedPass.pass_id}`);
     } else {
-      record('Event Registration & Pass Generation (ER-2026-XXXXX)', false, `Invalid pass: ${registeredPass.pass_id}`);
+      record('Event Registration & Pass Generation (ER-2026-XXXXX)', false, `Invalid pass: ${approvedPass.pass_id}`);
     }
   } catch (err) {
     record('Event Registration & Pass Generation (ER-2026-XXXXX)', false, err.message);

@@ -7,19 +7,19 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 DO $$ BEGIN
-    CREATE TYPE user_role AS ENUM ('student', 'coordinator', 'admin');
+    CREATE TYPE user_role AS ENUM ('student', 'member', 'coordinator', 'organizer', 'admin');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
 DO $$ BEGIN
-    CREATE TYPE registration_status AS ENUM ('Pending', 'Confirmed', 'Rejected', 'Cancelled');
+    CREATE TYPE registration_status AS ENUM ('Pending', 'Approved', 'Confirmed', 'Rejected', 'Cancelled');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
 
 DO $$ BEGIN
-    CREATE TYPE induction_status AS ENUM ('Pending', 'Accepted', 'Rejected');
+    CREATE TYPE induction_status AS ENUM ('Pending', 'Shortlisted', 'Approved', 'Accepted', 'Rejected');
 EXCEPTION
     WHEN duplicate_object THEN null;
 END $$;
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS public.wings (
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS public.event_registrations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    pass_id TEXT NOT NULL UNIQUE DEFAULT ('ER-2026-' || LPAD(nextval('pass_seq')::text, 5, '0')),
+    pass_id TEXT UNIQUE,
     event_id UUID NOT NULL REFERENCES public.events(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
     full_name TEXT NOT NULL,
@@ -97,7 +97,10 @@ CREATE TABLE IF NOT EXISTS public.event_registrations (
     phone TEXT NOT NULL CHECK (phone ~ '^[0-9]{10}$'),
     team_name TEXT,
     team_members JSONB DEFAULT '[]'::jsonb,
-    status registration_status NOT NULL DEFAULT 'Confirmed',
+    status registration_status NOT NULL DEFAULT 'Pending',
+    rejection_reason TEXT,
+    reviewed_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    reviewed_at TIMESTAMPTZ,
     consent_given BOOLEAN NOT NULL CHECK (consent_given = true),
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
@@ -122,8 +125,24 @@ CREATE TABLE IF NOT EXISTS public.induction_applications (
     reason_for_joining TEXT NOT NULL CHECK (char_length(reason_for_joining) BETWEEN 10 AND 500),
     consent_given BOOLEAN NOT NULL CHECK (consent_given = true),
     status induction_status NOT NULL DEFAULT 'Pending',
+    rejection_reason TEXT,
+    reviewed_by UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    reviewed_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now()),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
+-- ============================================================================
+-- 7. ACTIVITY LOG TABLE (Audit trail for Super Admin)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS public.activity_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    admin_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    action TEXT NOT NULL,
+    target_type TEXT NOT NULL,
+    target_id TEXT,
+    details TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
 );
 
 -- ============================================================================
@@ -396,3 +415,14 @@ ON CONFLICT (name) DO UPDATE
 SET description = EXCLUDED.description,
     display_order = EXCLUDED.display_order,
     is_active = EXCLUDED.is_active;
+
+-- ACTIVITY LOGS POLICIES
+ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "activity_logs_admin_select" ON public.activity_logs;
+CREATE POLICY "activity_logs_admin_select" ON public.activity_logs
+    FOR SELECT USING (public.is_admin());
+
+DROP POLICY IF EXISTS "activity_logs_admin_insert" ON public.activity_logs;
+CREATE POLICY "activity_logs_admin_insert" ON public.activity_logs
+    FOR INSERT WITH CHECK (public.is_admin());

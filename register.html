@@ -9,6 +9,9 @@
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-client.js"></script>
+  <!-- PDF generation libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     .reg-page-container {
       max-width: 800px;
@@ -17,8 +20,8 @@
     }
 
     .reg-card {
-      background: var(--card-bg, #0b1120);
-      border: 1px solid var(--border-color, rgba(0, 212, 255, 0.2));
+      background: var(--bg-card, #111111);
+      border: 1px solid var(--border-color, rgba(234, 169, 67, 0.2));
       border-radius: 16px;
       box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
       overflow: hidden;
@@ -27,7 +30,7 @@
     .reg-header {
       padding: 2rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      background: linear-gradient(180deg, rgba(0, 212, 255, 0.06) 0%, transparent 100%);
+      background: linear-gradient(180deg, rgba(234, 169, 67, 0.06) 0%, transparent 100%);
     }
 
     .reg-body {
@@ -97,18 +100,18 @@
     }
 
     .ticket-pass {
-      background: linear-gradient(135deg, #090e1a 0%, #111a2e 100%);
-      border: 2px solid var(--primary, #00d4ff);
+      background: var(--bg-card, #111111);
+      border: 2px solid var(--primary, #eaa943);
       border-radius: 16px;
-      box-shadow: 0 0 35px rgba(0, 212, 255, 0.2);
+      box-shadow: 0 0 35px rgba(234, 169, 67, 0.2);
       position: relative;
       overflow: hidden;
       margin-bottom: 2rem;
     }
 
     .pass-top-strip {
-      background: var(--primary, #00d4ff);
-      color: #060913;
+      background: var(--primary, #eaa943);
+      color: #020202;
       padding: 0.5rem 1.5rem;
       display: flex;
       justify-content: space-between;
@@ -127,11 +130,11 @@
       font-family: monospace;
       font-size: 1.25rem;
       font-weight: 700;
-      color: var(--primary, #00d4ff);
-      background: rgba(0, 212, 255, 0.1);
+      color: var(--primary, #eaa943);
+      background: rgba(234, 169, 67, 0.1);
       padding: 0.35rem 0.75rem;
       border-radius: 6px;
-      border: 1px solid rgba(0, 212, 255, 0.3);
+      border: 1px solid rgba(234, 169, 67, 0.3);
       display: inline-block;
       letter-spacing: 0.05em;
     }
@@ -160,30 +163,51 @@
     }
 
     @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       body {
-        background: #fff !important;
-        color: #000 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        margin: 0;
+        padding: 0;
       }
-      .navbar, .reg-page-nav, .no-print {
+      .navbar, .reg-page-container > *:not(#formContainer):not(#passContainer),
+      .no-print, .nav-links, .nav-actions {
         display: none !important;
       }
-      .pass-container {
+      #formContainer { display: none !important; }
+      #passContainer {
         display: block !important;
-        padding: 0 !important;
+        padding: 1cm !important;
       }
       .ticket-pass {
-        border: 2px solid #000 !important;
+        border: 3px solid #c9892f !important;
         box-shadow: none !important;
-        background: #fff !important;
-        color: #000 !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        page-break-inside: avoid;
       }
       .pass-top-strip {
-        background: #000 !important;
-        color: #fff !important;
+        background: #c9892f !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
       }
-      .meta-stat-val, .pass-title {
-        color: #000 !important;
+      .pass-title, #passEventTitle { color: #000000 !important; }
+      .meta-stat-label { color: #555555 !important; font-size: 0.7rem !important; }
+      .meta-stat-val { color: #000000 !important; font-weight: 700 !important; }
+      .pass-id-badge {
+        background: rgba(201,137,47,0.15) !important;
+        border: 1px solid #c9892f !important;
+        color: #c9892f !important;
+        -webkit-print-color-adjust: exact !important;
       }
+      .barcode-svg rect { fill: #000000 !important; }
+      #passBarcodeId, .pass-barcode span { color: #333333 !important; font-size: 0.75rem !important; }
+      #passTeamMembersBox { display: block !important; color: #333333 !important; }
+      .pass-grid {
+        border-top: 1px dashed #cccccc !important;
+        border-bottom: 1px dashed #cccccc !important;
+      }
+      .pass-barcode { color: #000000 !important; }
     }
   </style>
 </head>
@@ -348,7 +372,7 @@
             </div>
 
             <!-- Consent & Privacy Note -->
-            <div style="margin: 1.75rem 0 1.5rem; padding: 1rem; background: rgba(0, 212, 255, 0.04); border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 8px;">
+            <div style="margin: 1.75rem 0 1.5rem; padding: 1rem; background: rgba(234, 169, 67, 0.04); border: 1px solid rgba(234, 169, 67, 0.15); border-radius: 8px;">
               <label style="display: flex; align-items: flex-start; gap: 0.6rem; cursor: pointer; font-size: 0.85rem; color: var(--text-main);">
                 <input type="checkbox" id="regConsent" required style="margin-top: 0.2rem;">
                 <span>
@@ -363,9 +387,65 @@
 
             <!-- Submit Button -->
             <button type="submit" class="btn btn-primary" id="regSubmitBtn" style="width: 100%; padding: 0.9rem; font-size: 1rem;">
-              Confirm & Generate Pass
+              Submit Registration Request
             </button>
           </form>
+        </div>
+      </div>
+
+      <!-- ==================== PENDING CONFIRMATION VIEW ==================== -->
+      <div id="pendingContainer" class="pass-container" style="display: none;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(245, 158, 11, 0.15); border: 2px solid #fbbf24; display: inline-flex; align-items: center; justify-content: center; color: #fbbf24; margin-bottom: 0.85rem;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
+          <div><span class="status-tag status-pending" style="display: inline-block; margin-bottom: 0.6rem;">Status: Pending Admin Approval</span></div>
+          <h2 style="font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem;">Request Submitted, Awaiting Admin Approval</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 520px; margin: 0 auto;">
+            Your registration request for <strong id="pendingEventTitle" style="color: #fff;"></strong> has been successfully submitted and is queued for review by the society organizers.
+          </p>
+        </div>
+
+        <div style="background: var(--bg-card, #111111); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
+          <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+            Submission Summary
+          </h3>
+          <div class="pass-grid">
+            <div class="meta-stat">
+              <span class="meta-stat-label">Participant / Leader</span>
+              <span class="meta-stat-val" id="pendingParticipantName">—</span>
+            </div>
+            <div class="meta-stat">
+              <span class="meta-stat-label">Roll Number</span>
+              <span class="meta-stat-val" id="pendingRollNo">—</span>
+            </div>
+            <div class="meta-stat">
+              <span class="meta-stat-label">Department & Year</span>
+              <span class="meta-stat-val" id="pendingDeptYear">—</span>
+            </div>
+            <div class="meta-stat">
+              <span class="meta-stat-label">Registered Email</span>
+              <span class="meta-stat-val" id="pendingEmail">—</span>
+            </div>
+          </div>
+          <div id="pendingTeamBox" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.1); font-size: 0.85rem; color: var(--text-muted);">
+            <div><strong>Team Name:</strong> <span id="pendingTeamName" style="color: #fff;"></span></div>
+            <div id="pendingMembersRow" style="margin-top: 0.35rem;"><strong>Team Members:</strong> <span id="pendingMembersList"></span></div>
+          </div>
+        </div>
+
+        <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: #fbbf24; line-height: 1.5;">
+          <strong>What happens next?</strong><br>
+          Society organizers review registration requests in order of submission. Once approved, your official Entry Pass ID (e.g. <code>ER-2026-XXXXX</code>) will be issued and you can view or download your printable pass from your <strong>My Registrations</strong> page.
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <a href="my-registrations.html" class="btn btn-primary" style="text-decoration: none; padding: 0.75rem 1.5rem;">
+            View My Registrations
+          </a>
+          <a href="index.html#events" class="btn btn-outline" style="text-decoration: none; padding: 0.75rem 1.5rem;">
+            Browse More Events
+          </a>
         </div>
       </div>
 
@@ -476,12 +556,16 @@
 
         <!-- Action Controls -->
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;" class="no-print">
-          <button type="button" class="btn btn-primary" onclick="window.print()" style="flex: 1;">
+          <button type="button" class="btn btn-primary" id="savePdfBtn" onclick="savePassAsPDF()" style="flex: 1;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Save Pass as PDF
+          </button>
+          <button type="button" class="btn btn-outline" onclick="window.print()" style="flex: 1;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>
-            Print / Save Pass (PDF)
+            Print Pass
           </button>
           <a href="my-registrations.html" class="btn btn-outline" style="flex: 1; text-align: center; text-decoration: none;">
-            Go to My Registrations
+            My Registrations
           </a>
         </div>
       </div>
@@ -519,6 +603,9 @@
       // Pre-fill user details
       document.getElementById('regFullName').value = currentUserProfile.full_name || '';
       document.getElementById('regEmail').value = currentUserProfile.email || '';
+      if (currentUserProfile.roll_number && document.getElementById('regRollNumber')) {
+        document.getElementById('regRollNumber').value = currentUserProfile.roll_number;
+      }
 
       // 2. Fetch Events from Database
       await loadEvents();
@@ -755,7 +842,7 @@
 
       const submitBtn = document.getElementById('regSubmitBtn');
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Processing registration & generating pass...';
+      submitBtn.textContent = 'Submitting registration request...';
 
       try {
         const registration = await Electroreck.registrations.register({
@@ -770,15 +857,18 @@
           consent_given: true
         });
 
-        // Send Email Confirmation
-        await Electroreck.email.sendPassConfirmation(registration);
-
-        // Display Official Pass
-        renderPass(registration);
+        if (registration.status === 'Pending') {
+          renderPendingSubmission(registration);
+        } else {
+          // Send Email Confirmation
+          await Electroreck.email.sendPassConfirmation(registration);
+          // Display Official Pass
+          renderPass(registration);
+        }
 
       } catch (err) {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Confirm & Generate Pass';
+        submitBtn.textContent = 'Submit Registration Request';
         
         // Map error to relevant field if possible
         const errText = err.message || 'Registration failed.';
@@ -792,6 +882,33 @@
           showGlobalError(errText);
         }
       }
+    }
+
+    function renderPendingSubmission(reg) {
+      document.getElementById('formContainer').style.display = 'none';
+      const pendingBox = document.getElementById('pendingContainer');
+      pendingBox.style.display = 'block';
+
+      document.getElementById('pendingEventTitle').textContent = selectedEvent ? selectedEvent.title : 'Event';
+      document.getElementById('pendingParticipantName').textContent = reg.full_name;
+      document.getElementById('pendingRollNo').textContent = reg.roll_number;
+      document.getElementById('pendingDeptYear').textContent = `${reg.department} (${reg.year_of_study})`;
+      document.getElementById('pendingEmail').textContent = reg.email;
+
+      if (reg.team_name) {
+        document.getElementById('pendingTeamBox').style.display = 'block';
+        document.getElementById('pendingTeamName').textContent = reg.team_name;
+        if (reg.team_members && reg.team_members.length > 0) {
+          document.getElementById('pendingMembersRow').style.display = 'block';
+          document.getElementById('pendingMembersList').textContent = reg.team_members.map(m => `${m.name} (${m.roll_number})`).join(', ');
+        } else {
+          document.getElementById('pendingMembersRow').style.display = 'none';
+        }
+      } else {
+        document.getElementById('pendingTeamBox').style.display = 'none';
+      }
+
+      window.scrollTo({ top: 0, behavior: 'auto' });
     }
 
     function renderPass(reg) {
@@ -822,7 +939,58 @@
         }
       }
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+
+    async function savePassAsPDF() {
+      const btn = document.getElementById('savePdfBtn');
+      btn.disabled = true;
+      btn.textContent = 'Generating PDF...';
+      try {
+        const ticket = document.getElementById('printableTicket');
+        // Temporarily force light colors for capture
+        const origBg = ticket.style.background;
+        const origColor = ticket.style.color;
+        const origBorder = ticket.style.border;
+
+        // Use html2canvas to capture the ticket
+        const canvas = await html2canvas(ticket, {
+          backgroundColor: '#ffffff',
+          scale: 2,
+          useCORS: true,
+          logging: false
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new window.jspdf.jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: 'a5'
+        });
+
+        const pdfW = pdf.internal.pageSize.getWidth();
+        const pdfH = pdf.internal.pageSize.getHeight();
+        const imgAspect = canvas.width / canvas.height;
+        let drawW = pdfW - 10;
+        let drawH = drawW / imgAspect;
+        if (drawH > pdfH - 10) {
+          drawH = pdfH - 10;
+          drawW = drawH * imgAspect;
+        }
+        const x = (pdfW - drawW) / 2;
+        const y = (pdfH - drawH) / 2;
+
+        pdf.addImage(imgData, 'PNG', x, y, drawW, drawH);
+        const passId = document.getElementById('passIdDisplay').textContent || 'pass';
+        pdf.save(`Electroreck-Pass-${passId}.pdf`);
+      } catch (err) {
+        console.error('PDF generation failed:', err);
+        alert('PDF generation failed. Please use Print → Save as PDF instead.');
+        window.print();
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Save Pass as PDF';
+      }
     }
   </script>
 </body>
