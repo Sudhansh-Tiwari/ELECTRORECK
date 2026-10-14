@@ -1,6 +1,12 @@
 # Electroreck — Electrical Engineering Society, NIT Kurukshetra
 ## Unified Student Platform & Administrative Control Portal
 
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel&logoColor=white)](https://electroreck-ten.vercel.app)
+[![Live Site](https://img.shields.io/badge/🌐%20Live%20Site-electroreck--ten.vercel.app-eaa943?style=for-the-badge)](https://electroreck-ten.vercel.app)
+
+> 🔗 **Live Demo:** [https://electroreck-ten.vercel.app](https://electroreck-ten.vercel.app)
+> 🔑 **Admin Portal:** [https://electroreck-ten.vercel.app/admin](https://electroreck-ten.vercel.app/admin)
+
 Official web portal and administrative management system for **Electroreck**, the Department of Electrical Engineering society at the National Institute of Technology, Kurukshetra.
 
 Built with high-performance modern Vanilla web standards (HTML5, CSS3, JavaScript ES2022) and backed by a single unified **Supabase** backend (PostgreSQL, Auth, RLS, Edge Functions, and real-time synchronisation).
